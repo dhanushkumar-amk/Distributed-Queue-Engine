@@ -1,7 +1,7 @@
 import { Redis } from 'ioredis';
 import { generateJobId } from './utils';
 import { createJob, Job, JobOptions, JobStatus } from './types';
-import { jobKey, waitingKey, channelKey } from './keys';
+import { jobKey, waitingKey, channelKey, completedKey, failedKey } from './keys';
 
 /**
  * High-level Queue class to interact with Redis and the Lua scripts.
@@ -45,8 +45,14 @@ export class Queue<T = any> {
       return null;
     }
 
-    const job = JSON.parse(raw.data || "{}");
-    job.status = raw.status;
+    const job: Job<T> = JSON.parse(raw.data || "{}");
+    // Merge real-time fields from the Redis Hash
+    job.status = (raw.status as any);
+    if (raw.completedAt) job.completedAt = Number(raw.completedAt);
+    if (raw.startedAt) job.startedAt = Number(raw.startedAt);
+    if (raw.failedAt) job.failedAt = Number(raw.failedAt);
+    if (raw.error) job.error = JSON.parse(raw.error);
+    
     return job;
   }
 
@@ -67,6 +73,23 @@ export class Queue<T = any> {
     const wk = waitingKey(this.queueName);
     const now = Date.now();
     return await this.redis.zrangebyscore(wk, 0, now);
+  }
+
+  /**
+   * Returns N most recent completed job IDs.
+   */
+  async getCompletedJobs(limit: number = 10): Promise<string[]> {
+    const ck = completedKey(this.queueName);
+    // ZREVRANGE for most recent (highest score) first
+    return await this.redis.zrevrange(ck, 0, limit - 1);
+  }
+
+  /**
+   * Gets the total count of completed jobs in the history.
+   */
+  async getCompletedCount(): Promise<number> {
+    const ck = completedKey(this.queueName);
+    return await this.redis.zcard(ck);
   }
 
   /**

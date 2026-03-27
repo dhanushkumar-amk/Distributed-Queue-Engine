@@ -10,7 +10,7 @@ declare module 'ioredis' {
     // Our core queue commands
     enqueue(numKeys: number, jobKey: string, waitingKey: string, channelKey: string, jobId: string, jobJson: string, runAt: number): Promise<number>;
     moveToActive(numKeys: number, waitingKey: string, activeKey: string, jobKeyPrefix: string, now: number): Promise<string | null>;
-    complete(numKeys: number, jobKey: string, activeKey: string, completedKey: string, jobId: string): Promise<number>;
+    complete(numKeys: number, jobKey: string, activeKey: string, completedKey: string, jobId: string, now: number): Promise<number>;
     fail(numKeys: number, jobKey: string, activeKey: string, failedKey: string, jobId: string, errorMsg: string): Promise<number>;
     // Add other commands here as we create them
   }

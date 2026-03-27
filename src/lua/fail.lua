@@ -7,8 +7,8 @@
 -- 1. Remove from active Hash
 redis.call("HDEL", KEYS[2], ARGV[1])
 
--- 2. Update status to failed and store the error
-redis.call("HSET", KEYS[1], "status", "failed", "error", ARGV[2])
+-- 2. Update status to FAILED and store the error
+redis.call("HSET", KEYS[1], "status", "FAILED", "error", ARGV[2])
 
 -- 3. Add to failed list for dead-letter queuing or retry logic
 redis.call("LPUSH", KEYS[3], ARGV[1])

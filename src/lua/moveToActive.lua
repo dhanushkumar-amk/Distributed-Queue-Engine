@@ -14,7 +14,7 @@ if jobId then
   -- 3. Atomic state transition
   -- Update job metadata with timestamps (Phase 15 requirement)
   redis.call("HSET", jobKey, 
-    "status", "active", 
+    "status", "ACTIVE", 
     "startedAt", ARGV[1], 
     "heartbeatAt", ARGV[1]
   )
