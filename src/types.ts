@@ -26,6 +26,7 @@ export interface Job<T = any> {
   priority: "low" | "normal" | "high";
   attempts: number;
   maxAttempts: number;
+  backoff?: JobOptions["backoff"];
   runAt: number;
   createdAt: number;
   startedAt?: number;
@@ -64,8 +65,42 @@ export function createJob<T>(
     priority: options.priority || "normal",
     attempts: 0,
     maxAttempts: options.attempts || 3,
+    backoff: options.backoff,
     runAt: Date.now() + (options.delay || 0),
     createdAt: Date.now(),
     progress: 0,
   };
+}
+
+/**
+ * Reconstructs a Job object from its raw Redis Hash representation
+ */
+export function hydrateJob<T>(raw: Record<string, string>): Job<T> | null {
+  if (!raw || Object.keys(raw).length === 0) return null;
+
+  try {
+    const job: Job<T> = JSON.parse(raw.data || "{}");
+    job.status = (raw.status as any);
+    
+    if (raw.attempts) job.attempts = Number(raw.attempts);
+    if (raw.maxAttempts) job.maxAttempts = Number(raw.maxAttempts);
+    if (raw.runAt) job.runAt = Number(raw.runAt);
+    if (raw.startedAt) job.startedAt = Number(raw.startedAt);
+    if (raw.completedAt) job.completedAt = Number(raw.completedAt);
+    if (raw.failedAt) job.failedAt = Number(raw.failedAt);
+    if (raw.heartbeatAt) job.heartbeatAt = Number(raw.heartbeatAt);
+    
+    if (raw.error) {
+      try {
+        job.error = JSON.parse(raw.error);
+      } catch {
+        job.error = { message: raw.error };
+      }
+    }
+    
+    return job;
+  } catch (err) {
+    console.error("❌ Failed to hydrate job:", err);
+    return null;
+  }
 }

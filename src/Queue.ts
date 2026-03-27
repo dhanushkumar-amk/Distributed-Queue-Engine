@@ -1,6 +1,6 @@
 import { Redis } from 'ioredis';
 import { generateJobId } from './utils';
-import { createJob, Job, JobOptions, JobStatus } from './types';
+import { createJob, hydrateJob, Job, JobOptions, JobStatus } from './types';
 import { jobKey, waitingKey, channelKey, completedKey, failedKey } from './keys';
 
 /**
@@ -28,8 +28,8 @@ export class Queue<T = any> {
     const ck = channelKey(this.queueName);
 
     // Call the updated enqueue Lua script
-    // ARGV[1]: jobId, ARGV[2]: serializedData, ARGV[3]: runAt
-    await (this.redis as any).enqueue(3, jk, wk, ck, job.id, JSON.stringify(job), job.runAt);
+    // ARGV[1]: jobId, ARGV[2]: serializedData, ARGV[3]: runAt, ARGV[4]: maxAttempts
+    await (this.redis as any).enqueue(3, jk, wk, ck, job.id, JSON.stringify(job), job.runAt, job.maxAttempts);
 
     return job;
   }
@@ -40,20 +40,7 @@ export class Queue<T = any> {
   async getJob(jobId: string): Promise<Job<T> | null> {
     const jk = jobKey(this.queueName, jobId);
     const raw = await this.redis.hgetall(jk);
-    
-    if (!raw || Object.keys(raw).length === 0) {
-      return null;
-    }
-
-    const job: Job<T> = JSON.parse(raw.data || "{}");
-    // Merge real-time fields from the Redis Hash
-    job.status = (raw.status as any);
-    if (raw.completedAt) job.completedAt = Number(raw.completedAt);
-    if (raw.startedAt) job.startedAt = Number(raw.startedAt);
-    if (raw.failedAt) job.failedAt = Number(raw.failedAt);
-    if (raw.error) job.error = JSON.parse(raw.error);
-    
-    return job;
+    return hydrateJob<T>(raw);
   }
 
   /**

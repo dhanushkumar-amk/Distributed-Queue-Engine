@@ -1,5 +1,5 @@
 import { Redis } from 'ioredis';
-import { Job, JobOptions } from './types';
+import { Job, JobOptions, hydrateJob } from './types';
 import { jobKey, waitingKey, activeKey, failedKey, completedKey } from './keys';
 
 /**
@@ -77,11 +77,9 @@ export class Worker<T = any> {
         // 2. Fetch full job data
         const jk = jobKey(this.queueName, jobId);
         const raw = await this.redis.hgetall(jk);
+        const job = hydrateJob<T>(raw);
         
-        if (raw && Object.keys(raw).length > 0) {
-          const job: Job<T> = JSON.parse(raw.data);
-          job.status = (raw.status as any);
-
+        if (job) {
           // 3. Process the job
           this.activeJobsCount++;
           
@@ -124,10 +122,29 @@ export class Worker<T = any> {
       
       console.log(`✅ Job completed: ${job.id}`);
     } catch (err: any) {
-      console.error(`❌ Job failed: ${job.id} - ${err.message}`);
-      
       const failedKeyVal = failedKey(this.queueName);
-      await (this.redis as any).fail(3, jk, ak, failedKeyVal, job.id, err.message);
+      const waitingKeyVal = waitingKey(this.queueName);
+      const now = Date.now();
+      const nextRunAt = this.calculateNextRunAt(job, now);
+      const errorJson = JSON.stringify({ message: err.message, stack: err.stack });
+      
+      await (this.redis as any).fail(4, jk, ak, waitingKeyVal, failedKeyVal, job.id, errorJson, now, nextRunAt);
     }
+  }
+
+  private calculateNextRunAt(job: Job<T>, now: number): number {
+    const strategy = job.backoff;
+    if (!strategy) return now + 1000;
+
+    const { type, delay } = strategy;
+    const attemptsMade = job.attempts; 
+
+    if (type === "fixed") {
+      return now + delay;
+    } else if (type === "exponential") {
+      return now + (delay * Math.pow(2, attemptsMade));
+    }
+
+    return now + delay;
   }
 }
