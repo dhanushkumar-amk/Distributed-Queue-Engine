@@ -2,7 +2,7 @@ import { Redis } from 'ioredis';
 import { EventEmitter } from 'events';
 import { generateJobId } from './utils';
 import { createJob, hydrateJob, Job, JobOptions, JobStatus, QueueMetrics } from './types';
-import { jobKey, waitingKey, activeKey, channelKey, completedKey, failedKey, cancelledKey } from './keys';
+import { jobKey, waitingKey, delayedKey, activeKey, channelKey, completedKey, failedKey, cancelledKey } from './keys';
 
 /**
  * High-level Queue class to interact with Redis and the Lua scripts.
@@ -23,19 +23,26 @@ export class Queue<T = any> extends EventEmitter {
    * Supports immediate and delayed jobs via options.delay.
    */
   async add(name: string, data: T, options: JobOptions = {}): Promise<Job<T>> {
-    const jobId = generateJobId();
-    const job = createJob(jobId, name, data, options);
+    const id = generateJobId();
+    const job = createJob(id, name, this.queueName, data, options);
     
     const jk = jobKey(this.queueName, job.id);
     const wk = waitingKey(this.queueName);
-    const ck = channelKey(this.queueName);
+    const dk = delayedKey(this.queueName);
+    const chk = channelKey(this.queueName);
+
+    // Map priority string to numeric score (1 is highest priority)
+    const priorityMap: Record<string, number> = { high: 1, normal: 5, low: 10 };
+    const priorityScore = priorityMap[job.priority] || 5;
 
     // Call the updated enqueue Lua script
-    // ARGV[1]: jobId, ARGV[2]: serializedData, ARGV[3]: runAt, ARGV[4]: maxAttempts
-    await (this.redis as any).enqueue(3, jk, wk, ck, job.id, JSON.stringify(job), job.runAt, job.maxAttempts);
+    // ARGV[1]: jobId, ARGV[2]: data, ARGV[3]: runAt, ARGV[4]: maxAttempts, ARGV[5]: priorityScore, ARGV[6]: now
+    await (this.redis as any).enqueue(
+        4, jk, wk, dk, chk, 
+        job.id, JSON.stringify(job), job.runAt, job.maxAttempts, priorityScore, Date.now()
+    );
 
     this.emit('waiting', job);
-
     return job;
   }
 
@@ -90,14 +97,15 @@ export class Queue<T = any> extends EventEmitter {
   async getMetrics(): Promise<QueueMetrics> {
     const now = Date.now();
     const wk = waitingKey(this.queueName);
+    const dk = delayedKey(this.queueName);
     const ak = activeKey(this.queueName);
     const ck = completedKey(this.queueName);
     const fk = failedKey(this.queueName);
     const cnk = cancelledKey(this.queueName);
 
     const pipeline = this.redis.pipeline();
-    pipeline.zcount(wk, 0, now);          // Waiting (Ready)
-    pipeline.zcount(wk, now + 1, "+inf"); // Delayed
+    pipeline.zcard(wk);                   // Waiting (Ready)
+    pipeline.zcard(dk);                   // Delayed
     pipeline.hlen(ak);                    // Active
     pipeline.zcard(ck);                   // Completed
     pipeline.zcard(fk);                   // Failed

@@ -1,37 +1,40 @@
 import { Redis } from 'ioredis';
 import { EventEmitter } from 'events';
-import { Job, JobOptions, hydrateJob, JobStatus } from './types';
-import { jobKey, waitingKey, activeKey, failedKey, completedKey, channelKey } from './keys';
+import { Job, JobOptions, hydrateJob, JobStatus, WorkerOptions } from './types';
+import { jobKey, waitingKey, delayedKey, activeKey, failedKey, completedKey, channelKey, limiterKey } from './keys';
 
 /**
- * Worker class to process jobs from the queue.
+ * Worker class to process jobs from one or more queues.
  */
 export class Worker<T = any> extends EventEmitter {
   private redis: Redis;
-  private queueName: string;
-  private processor: (job: Job<T>) => Promise<any>;
+  private queueNames: string[];
+  private currentQueueIndex: number = 0;
+  private processor: (job: Job<T>) => Promise<void>;
   private running: boolean = false;
   private concurrency: number;
   private activeJobsCount: number = 0;
   private pollInterval: number;
 
-  private activeJobIds: Set<string> = new Set();
+  private activeJobs: Map<string, Job<T>> = new Map(); // jobId -> Job
   private heartbeatTimer?: NodeJS.Timeout;
   private heartbeatInterval: number = 15000;
-  
+
   private subRedis?: Redis;
   private cancelledJobs: Set<string> = new Set();
+  private options: WorkerOptions;
 
   constructor(
-    queueName: string, 
-    processor: (job: Job<T>) => Promise<any>, 
+    queueNames: string | string[], 
+    processor: (job: Job<T>) => Promise<void>, 
     redis: Redis,
-    options: { concurrency?: number; pollInterval?: number } = {}
+    options: WorkerOptions = {}
   ) {
     super();
-    this.queueName = queueName;
+    this.queueNames = Array.isArray(queueNames) ? queueNames : [queueNames];
     this.processor = processor;
     this.redis = redis;
+    this.options = options || {};
     this.concurrency = options.concurrency || 1;
     this.pollInterval = options.pollInterval || 1000;
   }
@@ -40,15 +43,17 @@ export class Worker<T = any> extends EventEmitter {
     if (this.subRedis) return;
     
     this.subRedis = this.redis.duplicate();
-    const ch = channelKey(this.queueName);
-    await this.subRedis.subscribe(ch);
-    this.log(`📡 Subscribed to cancellation events on: ${ch}`);
+    for (const q of this.queueNames) {
+       const ch = channelKey(q);
+       await this.subRedis.subscribe(ch);
+       this.log(`📡 Subscribed to cancellation events on: ${ch}`, q);
+    }
 
-    this.subRedis.on('message', (_channel, message) => {
+    this.subRedis.on('message', (channel, message) => {
        try {
           const { event, jobId } = JSON.parse(message);
           if (event === 'cancel') {
-             this.log(`⛔ Job cancellation received: ${jobId}`);
+             this.log(`⛔ Job cancellation received: ${jobId}`, channel);
              this.cancelledJobs.add(jobId);
           }
        } catch {}
@@ -58,8 +63,9 @@ export class Worker<T = any> extends EventEmitter {
   /**
    * Internal logger.
    */
-  private log(message: string): void {
-    console.log(`[Worker:${this.queueName}] ${message}`);
+  private log(message: string, queueName?: string): void {
+    const qLabel = queueName || this.queueNames.join(',');
+    console.log(`[Worker:${qLabel}] ${message}`);
   }
 
   /**
@@ -69,7 +75,7 @@ export class Worker<T = any> extends EventEmitter {
     if (this.running) return;
     this.running = true;
     this.log(`👷 Worker started (concurrency: ${this.concurrency})`);
-    
+
     await this.setupSubscriber().catch(err => {
         this.log(`❌ Failed to setup subscriber: ${err.message}`);
     });
@@ -86,7 +92,7 @@ export class Worker<T = any> extends EventEmitter {
   async stop(): Promise<void> {
     this.running = false;
     this.log("🛑 Stopping worker gracefully...");
-    
+
     if (this.heartbeatTimer) {
       clearInterval(this.heartbeatTimer);
       this.heartbeatTimer = undefined;
@@ -105,62 +111,85 @@ export class Worker<T = any> extends EventEmitter {
   }
 
   /**
-   * Main polling loop.
+   * Main polling loop rotating through queueNames.
    */
   private async poll(): Promise<void> {
     if (!this.running) return;
 
-    // Check concurrency limit
     if (this.activeJobsCount >= this.concurrency) {
       setTimeout(() => this.poll(), 100);
       return;
     }
 
-    try {
-      const wk = waitingKey(this.queueName);
-      const ak = activeKey(this.queueName);
-      const jkPrefix = `queue:${this.queueName}:jobs:`;
+    let jobFound = false;
+    let rateLimited = false;
 
-      // 1. Try to pick up a job
-      const jobId = await (this.redis as any).moveToActive(3, wk, ak, jkPrefix, Date.now());
+    // Ordered / Round-robin rotation
+    for (let i = 0; i < this.queueNames.length; i++) {
+        const qIdx = (this.currentQueueIndex + i) % this.queueNames.length;
+        const qName = this.queueNames[qIdx];
 
-      if (jobId) {
-        // 2. Fetch full job data
-        const jk = jobKey(this.queueName, jobId);
-        const raw = await this.redis.hgetall(jk);
-        const job = hydrateJob<T>(raw);
-        
-        if (job) {
-          // 3. Process the job
-          this.activeJobsCount++;
-          
-          this.processJob(job).finally(() => {
-            this.activeJobsCount--;
-            // Immediately poll for the next job since we just finished one
-            setImmediate(() => this.poll());
-          });
-        } else {
-           // Orphaned ID? Just remove it from active and wait
-           await this.redis.hdel(ak, jobId);
-           this.poll();
+        try {
+            const wk = waitingKey(qName);
+            const dk = delayedKey(qName);
+            const ak = activeKey(qName);
+            const lk = limiterKey(qName);
+            const jkPrefix = `queue:${qName}:jobs:`;
+
+            const limitMax = this.options.rateLimit?.max || 0;
+            const limitDuration = this.options.rateLimit?.durationMs || 0;
+
+            const jobId = await (this.redis as any).moveToActive(
+                4, dk, wk, ak, lk, 
+                Date.now(), jkPrefix, limitMax, limitDuration
+            );
+
+            if (jobId === "RATE_LIMIT") {
+                rateLimited = true;
+                continue;
+            }
+
+            if (jobId) {
+                jobFound = true;
+                this.currentQueueIndex = qIdx; // Success: set as base for next poll
+
+                const jk = jobKey(qName, jobId);
+                const raw = await this.redis.hgetall(jk);
+                const job = hydrateJob<T>(raw);
+                
+                if (job) {
+                    this.activeJobsCount++;
+                    this.processJob(job).finally(() => {
+                        this.activeJobsCount--;
+                        setImmediate(() => this.poll());
+                    });
+                    return; 
+                } else {
+                    // Orphaned ID? Just remove it
+                    await this.redis.hdel(ak, jobId);
+                }
+            }
+        } catch (err: any) {
+            this.log(`❌ Poll error on ${qName}: ${err.message}`);
         }
-      } else {
-        // No jobs: wait and poll again
-        setTimeout(() => this.poll(), this.pollInterval);
-      }
-    } catch (err: any) {
-      console.error("❌ Worker Poll Error:", err.message);
-      setTimeout(() => this.poll(), this.pollInterval * 2); // Exponential backoff on error
     }
+
+    // Backoff if no work or rate-limited
+    const waitTime = rateLimited ? 1000 : this.pollInterval;
+    if (!jobFound) {
+       this.currentQueueIndex = (this.currentQueueIndex + 1) % this.queueNames.length;
+    }
+    setTimeout(() => this.poll(), waitTime);
   }
 
   /**
    * Internal job execution handler.
    */
   private async processJob(job: Job<T>): Promise<void> {
-    const jk = jobKey(this.queueName, job.id);
-    const ak = activeKey(this.queueName);
-    
+    const qName = job.queueName;
+    const jk = jobKey(qName, job.id);
+    const ak = activeKey(qName);
+
     // Attach progress reporter
     job.updateProgress = async (progress: number) => {
       await (this.redis as any).updateProgress(1, jk, progress.toString());
@@ -174,40 +203,38 @@ export class Worker<T = any> extends EventEmitter {
 
     try {
       if (job.isCancelled()) return;
-      this.activeJobIds.add(job.id);
-      this.log(`🚀 Processing job: ${job.name} (ID: ${job.id})`);
-      this.emit('active', job);
       
+      this.activeJobs.set(job.id, job);
+      this.log(`🚀 Processing job [${qName}]: ${job.name} (ID: ${job.id})`);
+      this.emit('active', job);
+
       // Call user logic
       const result = await this.processor(job);
-      
+
       // Resolve states
-      const completedKeyVal = completedKey(this.queueName);
+      const completedKeyVal = completedKey(qName);
       await (this.redis as any).complete(3, jk, ak, completedKeyVal, job.id, Date.now());
-      
-      this.log(`✅ Job completed: ${job.id}`);
+
+      this.log(`✅ Job completed: ${job.id}`, qName);
       this.emit('completed', job, result);
     } catch (err: any) {
-      this.log(`❌ Job failed: ${job.id} - ${err.message}`);
-      
-      const failedKeyVal = failedKey(this.queueName);
-      const waitingKeyVal = waitingKey(this.queueName);
+      this.log(`❌ Job failed: ${job.id} - ${err.message}`, qName);
+
+      const failedKeyVal = failedKey(qName);
+      const waitingKeyVal = waitingKey(qName);
       const now = Date.now();
       const nextRunAt = this.calculateNextRunAt(job, now);
       const errorJson = JSON.stringify({ message: err.message, stack: err.stack });
-      
+
       await (this.redis as any).fail(4, jk, ak, waitingKeyVal, failedKeyVal, job.id, errorJson, now, nextRunAt);
-      
+
       this.emit('failed', job, err);
     } finally {
-      this.activeJobIds.delete(job.id);
+      this.activeJobs.delete(job.id);
       this.cancelledJobs.delete(job.id);
     }
   }
 
-  /**
-   * Periodically updates heartbeat for all currently processing jobs.
-   */
   private startHeartbeatLoop(): void {
      this.heartbeatTimer = setInterval(() => {
         this.sendHeartbeats().catch(err => this.log(`Heartbeat Error: ${err.message}`));
@@ -215,16 +242,16 @@ export class Worker<T = any> extends EventEmitter {
   }
 
   private async sendHeartbeats(): Promise<void> {
-    if (this.activeJobIds.size === 0) return;
-    
-    const ak = activeKey(this.queueName);
+    if (this.activeJobs.size === 0) return;
+
     const now = Date.now();
-    
-    // We update each job's timestamp in the active hash
-    const promises = Array.from(this.activeJobIds).map(jobId => {
-      return (this.redis as any).heartbeat(1, ak, jobId, now);
-    });
-    
+    const promises: Promise<any>[] = [];
+
+    for (const job of this.activeJobs.values()) {
+        const ak = activeKey(job.queueName);
+        promises.push((this.redis as any).heartbeat(1, ak, job.id, now));
+    }
+
     await Promise.all(promises);
   }
 
@@ -233,7 +260,7 @@ export class Worker<T = any> extends EventEmitter {
     if (!strategy) return now + 1000;
 
     const { type, delay } = strategy;
-    const attemptsMade = job.attempts; 
+    const attemptsMade = job.attempts;
 
     if (type === "fixed") {
       return now + delay;

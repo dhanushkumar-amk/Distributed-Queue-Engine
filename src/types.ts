@@ -22,6 +22,7 @@ export interface JobOptions {
 export interface Job<T = any> {
   id: string;
   name: string;
+  queueName: string;
   data: T;
   status: JobStatus;
   priority: "low" | "normal" | "high";
@@ -58,21 +59,27 @@ export interface QueueMetrics {
 export function createJob<T>(
   id: string,
   name: string,
+  queueName: string,
   data: T,
   options: JobOptions = {}
 ): Job<T> {
+  const now = Date.now();
+  const delay = options.delay || 0;
+  const runAt = now + delay;
+
   return {
     id,
     name,
+    queueName,
     data,
-    status: (options.delay && options.delay > 0) ? JobStatus.DELAYED : JobStatus.WAITING,
+    status: delay > 0 ? JobStatus.DELAYED : JobStatus.WAITING,
     priority: options.priority || "normal",
     attempts: 0,
-    maxAttempts: options.attempts || 3,
+    maxAttempts: options.attempts || 1,
     backoff: options.backoff,
-    runAt: Date.now() + (options.delay || 0),
-    createdAt: Date.now(),
-    progress: 0,
+    runAt,
+    createdAt: now,
+    progress: 0
   };
 }
 

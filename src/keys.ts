@@ -14,6 +14,14 @@ export function waitingKey(queueName: string): string {
   return `${PREFIX}:${queueName}:waiting`;
 }
 
+export function delayedKey(queueName: string): string {
+  return `${PREFIX}:${queueName}:delayed`;
+}
+
+export function limiterKey(queueName: string): string {
+  return `${PREFIX}:${queueName}:limiter`;
+}
+
 export function activeKey(queueName: string): string {
   return `${PREFIX}:${queueName}:active`;
 }
