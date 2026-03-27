@@ -34,6 +34,8 @@
     "typescript": "^6.0.2"
   },
   "dependencies": {
-    "ioredis": "^5.10.1"
+    "@types/uuid": "^10.0.0",
+    "ioredis": "^5.10.1",
+    "uuid": "^13.0.0"
   }
 }
