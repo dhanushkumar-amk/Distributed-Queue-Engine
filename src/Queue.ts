@@ -2,7 +2,7 @@ import { Redis } from 'ioredis';
 import { EventEmitter } from 'events';
 import { generateJobId } from './utils';
 import { createJob, hydrateJob, Job, JobOptions, JobStatus, QueueMetrics } from './types';
-import { jobKey, waitingKey, activeKey, channelKey, completedKey, failedKey } from './keys';
+import { jobKey, waitingKey, activeKey, channelKey, completedKey, failedKey, cancelledKey } from './keys';
 
 /**
  * High-level Queue class to interact with Redis and the Lua scripts.
@@ -93,6 +93,7 @@ export class Queue<T = any> extends EventEmitter {
     const ak = activeKey(this.queueName);
     const ck = completedKey(this.queueName);
     const fk = failedKey(this.queueName);
+    const cnk = cancelledKey(this.queueName);
 
     const pipeline = this.redis.pipeline();
     pipeline.zcount(wk, 0, now);          // Waiting (Ready)
@@ -100,6 +101,7 @@ export class Queue<T = any> extends EventEmitter {
     pipeline.hlen(ak);                    // Active
     pipeline.zcard(ck);                   // Completed
     pipeline.zcard(fk);                   // Failed
+    pipeline.zcard(cnk);                  // Cancelled
     
     const results = await pipeline.exec();
     
@@ -108,8 +110,30 @@ export class Queue<T = any> extends EventEmitter {
        delayed: results?.[1]?.[1] as number || 0,
        active: results?.[2]?.[1] as number || 0,
        completed: results?.[3]?.[1] as number || 0,
-       failed: results?.[4]?.[1] as number || 0
+       failed: results?.[4]?.[1] as number || 0,
+       cancelled: results?.[5]?.[1] as number || 0
     };
+  }
+
+  /**
+   * Cancels a job. If it is in waiting or delayed, it will be moved to cancelled.
+   * If it is active, it will be marked for cancellation.
+   */
+  async cancel(jobId: string): Promise<boolean> {
+     const jk = jobKey(this.queueName, jobId);
+     const ak = activeKey(this.queueName);
+     const wk = waitingKey(this.queueName);
+     const cnk = cancelledKey(this.queueName);
+     
+     const result = await (this.redis as any).cancel(4, jk, ak, wk, cnk, jobId, Date.now());
+     
+     if (result === 1) {
+        this.emit('cancelled', jobId);
+        // In a real system, we'd also publish a message to potential workers
+        await this.redis.publish(channelKey(this.queueName), JSON.stringify({ event: 'cancel', jobId }));
+        return true;
+     }
+     return false;
   }
 
   /**

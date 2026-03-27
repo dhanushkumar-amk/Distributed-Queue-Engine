@@ -26,6 +26,10 @@ export function completedKey(queueName: string): string {
   return `${PREFIX}:${queueName}:completed`;
 }
 
+export function cancelledKey(queueName: string): string {
+  return `${PREFIX}:${queueName}:cancelled`;
+}
+
 export function metricsKey(queueName: string): string {
   return `${PREFIX}:${queueName}:metrics`;
 }

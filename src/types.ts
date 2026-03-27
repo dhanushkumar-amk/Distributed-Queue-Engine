@@ -4,6 +4,7 @@ export enum JobStatus {
   COMPLETED = "COMPLETED",
   FAILED = "FAILED",
   DELAYED = "DELAYED",
+  CANCELLED = "CANCELLED",
 }
 
 export type BackoffType = "fixed" | "exponential";
@@ -39,6 +40,7 @@ export interface Job<T = any> {
   progress?: number;
   heartbeatAt?: number;
   updateProgress?(progress: number): Promise<void>;
+  isCancelled?(): boolean;
 }
 
 export interface QueueMetrics {
@@ -47,6 +49,7 @@ export interface QueueMetrics {
   completed: number;
   failed: number;
   delayed: number;
+  cancelled: number;
 }
 
 /**

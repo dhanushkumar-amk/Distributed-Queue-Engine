@@ -1,7 +1,7 @@
 import { Redis } from 'ioredis';
 import { EventEmitter } from 'events';
-import { Job, JobOptions, hydrateJob } from './types';
-import { jobKey, waitingKey, activeKey, failedKey, completedKey } from './keys';
+import { Job, JobOptions, hydrateJob, JobStatus } from './types';
+import { jobKey, waitingKey, activeKey, failedKey, completedKey, channelKey } from './keys';
 
 /**
  * Worker class to process jobs from the queue.
@@ -18,6 +18,9 @@ export class Worker<T = any> extends EventEmitter {
   private activeJobIds: Set<string> = new Set();
   private heartbeatTimer?: NodeJS.Timeout;
   private heartbeatInterval: number = 15000;
+  
+  private subRedis?: Redis;
+  private cancelledJobs: Set<string> = new Set();
 
   constructor(
     queueName: string, 
@@ -31,6 +34,25 @@ export class Worker<T = any> extends EventEmitter {
     this.redis = redis;
     this.concurrency = options.concurrency || 1;
     this.pollInterval = options.pollInterval || 1000;
+  }
+
+  private async setupSubscriber(): Promise<void> {
+    if (this.subRedis) return;
+    
+    this.subRedis = this.redis.duplicate();
+    const ch = channelKey(this.queueName);
+    await this.subRedis.subscribe(ch);
+    this.log(`📡 Subscribed to cancellation events on: ${ch}`);
+
+    this.subRedis.on('message', (_channel, message) => {
+       try {
+          const { event, jobId } = JSON.parse(message);
+          if (event === 'cancel') {
+             this.log(`⛔ Job cancellation received: ${jobId}`);
+             this.cancelledJobs.add(jobId);
+          }
+       } catch {}
+    });
   }
 
   /**
@@ -48,6 +70,10 @@ export class Worker<T = any> extends EventEmitter {
     this.running = true;
     this.log(`👷 Worker started (concurrency: ${this.concurrency})`);
     
+    await this.setupSubscriber().catch(err => {
+        this.log(`❌ Failed to setup subscriber: ${err.message}`);
+    });
+
     this.startHeartbeatLoop();
 
     // Begin polling
@@ -64,6 +90,11 @@ export class Worker<T = any> extends EventEmitter {
     if (this.heartbeatTimer) {
       clearInterval(this.heartbeatTimer);
       this.heartbeatTimer = undefined;
+    }
+
+    if (this.subRedis) {
+      this.subRedis.disconnect();
+      this.subRedis = undefined;
     }
 
     // Wait for active jobs to drain
@@ -130,7 +161,19 @@ export class Worker<T = any> extends EventEmitter {
     const jk = jobKey(this.queueName, job.id);
     const ak = activeKey(this.queueName);
     
+    // Attach progress reporter
+    job.updateProgress = async (progress: number) => {
+      await (this.redis as any).updateProgress(1, jk, progress.toString());
+      job.progress = progress;
+      this.emit('progress', job, progress);
+    };
+
+    job.isCancelled = () => {
+       return this.cancelledJobs.has(job.id);
+    };
+
     try {
+      if (job.isCancelled()) return;
       this.activeJobIds.add(job.id);
       this.log(`🚀 Processing job: ${job.name} (ID: ${job.id})`);
       this.emit('active', job);
@@ -158,6 +201,7 @@ export class Worker<T = any> extends EventEmitter {
       this.emit('failed', job, err);
     } finally {
       this.activeJobIds.delete(job.id);
+      this.cancelledJobs.delete(job.id);
     }
   }
 
