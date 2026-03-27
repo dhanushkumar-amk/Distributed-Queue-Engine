@@ -1,11 +1,12 @@
 import { Redis } from 'ioredis';
+import { EventEmitter } from 'events';
 import { Job, JobOptions, hydrateJob } from './types';
 import { jobKey, waitingKey, activeKey, failedKey, completedKey } from './keys';
 
 /**
  * Worker class to process jobs from the queue.
  */
-export class Worker<T = any> {
+export class Worker<T = any> extends EventEmitter {
   private redis: Redis;
   private queueName: string;
   private processor: (job: Job<T>) => Promise<any>;
@@ -14,12 +15,17 @@ export class Worker<T = any> {
   private activeJobsCount: number = 0;
   private pollInterval: number;
 
+  private activeJobIds: Set<string> = new Set();
+  private heartbeatTimer?: NodeJS.Timeout;
+  private heartbeatInterval: number = 15000;
+
   constructor(
     queueName: string, 
     processor: (job: Job<T>) => Promise<any>, 
     redis: Redis,
     options: { concurrency?: number; pollInterval?: number } = {}
   ) {
+    super();
     this.queueName = queueName;
     this.processor = processor;
     this.redis = redis;
@@ -28,13 +34,22 @@ export class Worker<T = any> {
   }
 
   /**
+   * Internal logger.
+   */
+  private log(message: string): void {
+    console.log(`[Worker:${this.queueName}] ${message}`);
+  }
+
+  /**
    * Starts the polling loop.
    */
   async start(): Promise<void> {
     if (this.running) return;
     this.running = true;
-    console.log(`👷 Worker started for queue [${this.queueName}] (concurrency: ${this.concurrency})`);
+    this.log(`👷 Worker started (concurrency: ${this.concurrency})`);
     
+    this.startHeartbeatLoop();
+
     // Begin polling
     this.poll();
   }
@@ -44,13 +59,18 @@ export class Worker<T = any> {
    */
   async stop(): Promise<void> {
     this.running = false;
-    console.log("🛑 Stopping worker gracefully...");
+    this.log("🛑 Stopping worker gracefully...");
     
+    if (this.heartbeatTimer) {
+      clearInterval(this.heartbeatTimer);
+      this.heartbeatTimer = undefined;
+    }
+
     // Wait for active jobs to drain
     while (this.activeJobsCount > 0) {
       await new Promise(resolve => setTimeout(resolve, 100));
     }
-    console.log("✅ Worker stopped.");
+    this.log("✅ Worker stopped.");
   }
 
   /**
@@ -111,17 +131,22 @@ export class Worker<T = any> {
     const ak = activeKey(this.queueName);
     
     try {
-      console.log(`🚀 Processing job: ${job.name} (ID: ${job.id})`);
+      this.activeJobIds.add(job.id);
+      this.log(`🚀 Processing job: ${job.name} (ID: ${job.id})`);
+      this.emit('active', job);
       
       // Call user logic
-      await this.processor(job);
+      const result = await this.processor(job);
       
       // Resolve states
       const completedKeyVal = completedKey(this.queueName);
       await (this.redis as any).complete(3, jk, ak, completedKeyVal, job.id, Date.now());
       
-      console.log(`✅ Job completed: ${job.id}`);
+      this.log(`✅ Job completed: ${job.id}`);
+      this.emit('completed', job, result);
     } catch (err: any) {
+      this.log(`❌ Job failed: ${job.id} - ${err.message}`);
+      
       const failedKeyVal = failedKey(this.queueName);
       const waitingKeyVal = waitingKey(this.queueName);
       const now = Date.now();
@@ -129,7 +154,34 @@ export class Worker<T = any> {
       const errorJson = JSON.stringify({ message: err.message, stack: err.stack });
       
       await (this.redis as any).fail(4, jk, ak, waitingKeyVal, failedKeyVal, job.id, errorJson, now, nextRunAt);
+      
+      this.emit('failed', job, err);
+    } finally {
+      this.activeJobIds.delete(job.id);
     }
+  }
+
+  /**
+   * Periodically updates heartbeat for all currently processing jobs.
+   */
+  private startHeartbeatLoop(): void {
+     this.heartbeatTimer = setInterval(() => {
+        this.sendHeartbeats().catch(err => this.log(`Heartbeat Error: ${err.message}`));
+     }, this.heartbeatInterval);
+  }
+
+  private async sendHeartbeats(): Promise<void> {
+    if (this.activeJobIds.size === 0) return;
+    
+    const ak = activeKey(this.queueName);
+    const now = Date.now();
+    
+    // We update each job's timestamp in the active hash
+    const promises = Array.from(this.activeJobIds).map(jobId => {
+      return (this.redis as any).heartbeat(1, ak, jobId, now);
+    });
+    
+    await Promise.all(promises);
   }
 
   private calculateNextRunAt(job: Job<T>, now: number): number {
