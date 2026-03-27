@@ -9,7 +9,9 @@
   "scripts": {
     "dev": "nodemon src/index.ts",
     "build": "tsc",
-    "test": "jest"
+    "test": "jest",
+    "test:redis": "ts-node tests/redis-test.ts",
+    "test:structures": "ts-node tests/redis-structures.ts"
   },
   "repository": {
     "type": "git",
@@ -30,5 +32,8 @@
     "ts-jest": "^29.4.6",
     "ts-node": "^10.9.2",
     "typescript": "^6.0.2"
+  },
+  "dependencies": {
+    "ioredis": "^5.10.1"
   }
 }
