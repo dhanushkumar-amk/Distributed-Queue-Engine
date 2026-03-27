@@ -38,6 +38,7 @@ export interface Job<T = any> {
   };
   progress?: number;
   heartbeatAt?: number;
+  updateProgress?(progress: number): Promise<void>;
 }
 
 export interface QueueMetrics {
@@ -89,6 +90,7 @@ export function hydrateJob<T>(raw: Record<string, string>): Job<T> | null {
     if (raw.completedAt) job.completedAt = Number(raw.completedAt);
     if (raw.failedAt) job.failedAt = Number(raw.failedAt);
     if (raw.heartbeatAt) job.heartbeatAt = Number(raw.heartbeatAt);
+    if (raw.progress) job.progress = Number(raw.progress);
     
     if (raw.error) {
       try {

@@ -10,6 +10,7 @@ import { jobKey, waitingKey, activeKey, channelKey, completedKey, failedKey } fr
 export class Queue<T = any> extends EventEmitter {
   private redis: Redis;
   private queueName: string;
+  private watchdogTimer?: NodeJS.Timeout;
 
   constructor(queueName: string, redis: Redis) {
     super();
@@ -128,5 +129,50 @@ export class Queue<T = any> extends EventEmitter {
   async getWaitingCount(): Promise<number> {
     const wk = waitingKey(this.queueName);
     return await this.redis.zcard(wk);
+  }
+
+  /**
+   * Fetches the unique IDs of all jobs currently in the active set.
+   */
+  async getActiveJobs(): Promise<string[]> {
+    const ak = activeKey(this.queueName);
+    return await this.redis.hkeys(ak);
+  }
+
+  /**
+   * Periodically checks for and recovers stalled jobs (Watchdog).
+   */
+  startWatchdog(checkInterval: number = 30000, stallTimeout: number = 60000): void {
+     this.stopWatchdog();
+     this.watchdogTimer = setInterval(() => {
+        this.checkStalled(stallTimeout).catch(err => {
+            console.error(`[Watchdog:${this.queueName}] Error:`, err.message);
+        });
+     }, checkInterval);
+  }
+
+  stopWatchdog(): void {
+    if (this.watchdogTimer) {
+      clearInterval(this.watchdogTimer);
+      this.watchdogTimer = undefined;
+    }
+  }
+
+  /**
+   * Identifies and re-queues jobs that have haven't signaled liveness (heartbeat)
+   * within the stallTimeout period.
+   */
+  async checkStalled(stallTimeout: number): Promise<string[]> {
+     const ak = activeKey(this.queueName);
+     const wk = waitingKey(this.queueName);
+     const now = Date.now();
+     
+     const recovered = await (this.redis as any).cleanStalled(2, ak, wk, now, stallTimeout);
+     
+     if (recovered && recovered.length > 0) {
+        this.emit('stalled_recovered', recovered);
+     }
+     
+     return recovered || [];
   }
 }

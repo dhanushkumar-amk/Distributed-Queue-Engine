@@ -13,6 +13,8 @@ declare module 'ioredis' {
     complete(numKeys: number, jobKey: string, activeKey: string, completedKey: string, jobId: string, now: number): Promise<number>;
     fail(numKeys: number, jobKey: string, activeKey: string, waitingKey: string, failedKey: string, jobId: string, errorMsg: string, now: number, nextRunAt: number): Promise<number>;
     heartbeat(numKeys: number, activeKey: string, jobId: string, now: number): Promise<number>;
+    cleanStalled(numKeys: number, activeKey: string, waitingKey: string, now: number, stallInterval: number): Promise<string[]>;
+    updateProgress(numKeys: number, jobKey: string, progress: string): Promise<number>;
     // Add other commands here as we create them
   }
 }
