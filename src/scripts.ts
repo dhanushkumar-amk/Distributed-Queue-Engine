@@ -7,6 +7,11 @@ import { Redis } from 'ioredis';
 declare module 'ioredis' {
   interface Redis {
     hello(numKeys: number, name: string): Promise<string>;
+    // Our core queue commands
+    enqueue(numKeys: number, jobKey: string, waitingKey: string, channelKey: string, jobId: string, jobJson: string, runAt: number): Promise<number>;
+    moveToActive(numKeys: number, waitingKey: string, activeKey: string, jobKeyPrefix: string, now: number): Promise<string | null>;
+    complete(numKeys: number, jobKey: string, activeKey: string, completedKey: string, jobId: string): Promise<number>;
+    fail(numKeys: number, jobKey: string, activeKey: string, failedKey: string, jobId: string, errorMsg: string): Promise<number>;
     // Add other commands here as we create them
   }
 }
