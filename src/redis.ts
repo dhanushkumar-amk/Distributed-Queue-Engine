@@ -1,8 +1,11 @@
 import Redis from "ioredis";
+import { REDIS_URL } from "./config";
 
-const redis = new Redis({
-  host: "localhost",
-  port: 6379,
+/**
+ * Singleton Redis connection used across the application.
+ * Uses REDIS_URL from environmental configuration.
+ */
+const redis = new Redis(REDIS_URL, {
   retryStrategy(times) {
     if (times > 10) {
       console.error("Redis: Max retries reached. Shutting down.");
