@@ -16,6 +16,7 @@ declare module 'ioredis' {
     cleanStalled(numKeys: number, activeKey: string, waitingKey: string, now: number, stallInterval: number): Promise<string[]>;
     updateProgress(numKeys: number, jobKey: string, progress: string): Promise<number>;
     cancel(numKeys: number, jobKey: string, activeKey: string, waitingKey: string, cancelledKey: string, jobId: string, now: number): Promise<number>;
+    cleanup(numKeys: number, setKey: string, jobPrefix: string, maxAge: number, maxCount: number, now: number): Promise<number>;
     // Add other commands here as we create them
   }
 }

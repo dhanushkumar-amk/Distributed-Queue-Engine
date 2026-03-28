@@ -1,7 +1,7 @@
 import { Redis } from 'ioredis';
 import { EventEmitter } from 'events';
 import { generateJobId } from './utils';
-import { createJob, hydrateJob, Job, JobOptions, JobStatus, QueueMetrics } from './types';
+import { createJob, hydrateJob, Job, JobOptions, JobStatus, QueueMetrics, CleanupOptions } from './types';
 import { jobKey, waitingKey, delayedKey, activeKey, channelKey, completedKey, failedKey, cancelledKey } from './keys';
 
 /**
@@ -11,6 +11,7 @@ export class Queue<T = any> extends EventEmitter {
   private redis: Redis;
   private queueName: string;
   private watchdogTimer?: NodeJS.Timeout;
+  private cleanupTimer?: NodeJS.Timeout;
 
   constructor(queueName: string, redis: Redis) {
     super();
@@ -145,14 +146,53 @@ export class Queue<T = any> extends EventEmitter {
   }
 
   /**
-   * Cleans job history based on status and age.
+   * Runs one cleanup pass on completed, failed, and cancelled sets.
+   * Removes job hashes AND their sorted set entries atomically via Lua.
    */
-  async clean(status: JobStatus.COMPLETED | JobStatus.FAILED, gracePeriodMs: number): Promise<number> {
-     const k = (status === JobStatus.COMPLETED) ? completedKey(this.queueName) : failedKey(this.queueName);
-     const expiration = Date.now() - gracePeriodMs;
-     // Note: This only cleans the history list (ids). 
-     // Deleting actual job hashes would require ZRANGEBYSCORE + UNLINK.
-     return await this.redis.zremrangebyscore(k, "-inf", expiration);
+  async runCleanup(options: CleanupOptions): Promise<{ completed: number; failed: number; cancelled: number }> {
+    const jobPrefix = `queue:${this.queueName}:jobs:`;
+    const maxAge = options.maxAge || 0;
+    const maxCount = options.maxCount || 0;
+    const now = Date.now();
+
+    const [completedDel, failedDel, cancelledDel] = await Promise.all([
+      (this.redis as any).cleanup(2, completedKey(this.queueName), jobPrefix, maxAge, maxCount, now),
+      (this.redis as any).cleanup(2, failedKey(this.queueName), jobPrefix, maxAge, maxCount, now),
+      (this.redis as any).cleanup(2, cancelledKey(this.queueName), jobPrefix, maxAge, maxCount, now),
+    ]);
+
+    const result = { completed: completedDel, failed: failedDel, cancelled: cancelledDel };
+    const total = completedDel + failedDel + cancelledDel;
+    if (total > 0) {
+      console.log(`[Cleanup:${this.queueName}] Pruned ${total} job(s) (✅${completedDel} ❌${failedDel} ⛔${cancelledDel})`);
+      this.emit('cleaned', result);
+    }
+
+    return result;
+  }
+
+  /**
+   * Starts an automatic periodic cleanup loop.
+   */
+  startCleanup(options: CleanupOptions): void {
+    this.stopCleanup();
+    const interval = options.intervalMs || 30000;
+    console.log(`[Cleanup:${this.queueName}] Auto-cleanup started (every ${interval}ms, maxAge=${options.maxAge || 'off'}, maxCount=${options.maxCount || 'off'})`);
+    this.cleanupTimer = setInterval(() => {
+      this.runCleanup(options).catch(err => {
+        console.error(`[Cleanup:${this.queueName}] Error:`, err.message);
+      });
+    }, interval);
+  }
+
+  /**
+   * Stops the automatic cleanup loop.
+   */
+  stopCleanup(): void {
+    if (this.cleanupTimer) {
+      clearInterval(this.cleanupTimer);
+      this.cleanupTimer = undefined;
+    }
   }
 
   /**
@@ -206,5 +246,59 @@ export class Queue<T = any> extends EventEmitter {
      }
      
      return recovered || [];
+  }
+
+  /**
+   * Retries a failed job by moving it back to the waiting set.
+   */
+  async retry(jobId: string): Promise<boolean> {
+    const jk = jobKey(this.queueName, jobId);
+    const fk = failedKey(this.queueName);
+    const wk = waitingKey(this.queueName);
+
+    // Check if job exists in the failed set
+    const score = await this.redis.zscore(fk, jobId);
+    if (score === null) return false;
+
+    const raw = await this.redis.hgetall(jk);
+    if (!raw || !raw.id) return false;
+
+    const now = Date.now();
+    // Move from failed → waiting with priority score 5 (normal)
+    const pipeline = this.redis.pipeline();
+    pipeline.zrem(fk, jobId);
+    pipeline.hset(jk, 'status', 'WAITING', 'attempts', '0', 'runAt', String(now));
+    pipeline.zadd(wk, 5, jobId); // normal priority
+    await pipeline.exec();
+
+    this.emit('retried', jobId);
+    return true;
+  }
+
+  /**
+   * Lists job IDs from a given status set ('waiting','delayed','active','completed','failed','cancelled').
+   */
+  async getJobsByStatus(status: string, limit: number = 20): Promise<string[]> {
+    switch (status) {
+      case 'waiting':
+        return this.redis.zrange(waitingKey(this.queueName), 0, limit - 1);
+      case 'delayed':
+        return this.redis.zrange(delayedKey(this.queueName), 0, limit - 1);
+      case 'active':
+        return this.redis.hkeys(activeKey(this.queueName));
+      case 'completed':
+        return this.redis.zrevrange(completedKey(this.queueName), 0, limit - 1);
+      case 'failed':
+        return this.redis.zrevrange(failedKey(this.queueName), 0, limit - 1);
+      case 'cancelled':
+        return this.redis.zrevrange(cancelledKey(this.queueName), 0, limit - 1);
+      default:
+        return [];
+    }
+  }
+
+  /** Expose the queue name for API use */
+  getName(): string {
+    return this.queueName;
   }
 }

@@ -1,3 +1,12 @@
+export interface CleanupOptions {
+  /** Remove jobs completed/failed more than this many ms ago. Default: 0 (disabled) */
+  maxAge?: number;
+  /** Keep only the N most recent completed/failed jobs. Default: 0 (disabled) */
+  maxCount?: number;
+  /** How often to run cleanup (ms). Default: 30000 (30s) */
+  intervalMs?: number;
+}
+
 export enum JobStatus {
   WAITING = "WAITING",
   ACTIVE = "ACTIVE",
@@ -42,6 +51,17 @@ export interface Job<T = any> {
   heartbeatAt?: number;
   updateProgress?(progress: number): Promise<void>;
   isCancelled?(): boolean;
+}
+
+export interface WorkerOptions {
+  concurrency?: number;
+  pollInterval?: number;
+  rateLimit?: {
+    max: number;
+    durationMs: number;
+  };
+  /** Auto-cleanup options for completed/failed/cancelled jobs */
+  cleanup?: CleanupOptions;
 }
 
 export interface QueueMetrics {
