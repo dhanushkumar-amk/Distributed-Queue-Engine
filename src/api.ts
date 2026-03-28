@@ -16,7 +16,7 @@ export function createQueueRouter(registry: Record<string, Queue>): Router {
   const p = (req: Request, key: string): string => String((req.params as any)[key]);
 
 
-  
+
   function resolveQueue(res: Response, name: string): Queue | null {
     const queue = registry[name];
     if (!queue) {
