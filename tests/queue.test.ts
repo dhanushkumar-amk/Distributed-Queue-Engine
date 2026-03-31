@@ -48,7 +48,7 @@ describe('Queue.add()', () => {
     expect(job.id).toBeTruthy();
     expect(job.name).toBe('send-email');
     expect(job.data).toEqual({ to: 'user@example.com' });
-    expect(job.status).toBe('waiting');
+    expect(job.status).toBe('WAITING');
   });
 
   it('should default to normal priority and 3 maxAttempts', async () => {

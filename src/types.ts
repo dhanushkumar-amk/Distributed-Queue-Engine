@@ -117,7 +117,7 @@ export function createJob<T>(
     status: delay > 0 ? JobStatus.DELAYED : JobStatus.WAITING,
     priority: options.priority || "normal",
     attempts: 0,
-    maxAttempts: options.attempts || 1,
+    maxAttempts: options.attempts || 3,
     backoff: options.backoff,
     runAt,
     createdAt: now,

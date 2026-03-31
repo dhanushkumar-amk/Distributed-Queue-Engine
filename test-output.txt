@@ -1,89 +1,729 @@
-FAIL tests/worker.test.ts
-  ÔùÅ Test suite failed to run
+  console.log
+    ­ƒôí Loaded Lua command: redis.cancel()
 
-    Jest encountered an unexpected token
+      at loadScripts (src/scripts.ts:50:13)
 
-    Jest failed to parse a file. This happens e.g. when your code or its dependencies use non-standard JavaScript syntax, or when Jest is not configured to support such syntax.
+  console.log
+    ­ƒôí Loaded Lua command: redis.cleanStalled()
 
-    Out of the box Jest supports Babel, which will be used to transform your files into valid JS based on your Babel configuration.
+      at loadScripts (src/scripts.ts:50:13)
 
-    By default "node_modules" folder is ignored by transformers.
+  console.log
+    ­ƒôí Loaded Lua command: redis.cleanup()
 
-    Here's what you can do:
-     ÔÇó If you are trying to use ECMAScript Modules, see https://jestjs.io/docs/ecmascript-modules for how to enable it.
-     ÔÇó If you are trying to use TypeScript, see https://jestjs.io/docs/getting-started#using-typescript
-     ÔÇó To have some of your "node_modules" files transformed, you can specify a custom "transformIgnorePatterns" in your config.
-     ÔÇó If you need a custom transformation, specify a "transform" option in your config.
-     ÔÇó If you simply want to mock your non-JS modules (e.g. binary assets) you can stub them out with the "moduleNameMapper" config option.
+      at loadScripts (src/scripts.ts:50:13)
 
-    You'll find more details and examples of these config options in the docs:
-    https://jestjs.io/docs/configuration
-    For information about custom transformations, see:
-    https://jestjs.io/docs/code-transformation
+  console.log
+    ­ƒôí Loaded Lua command: redis.complete()
 
-    Details:
+      at loadScripts (src/scripts.ts:50:13)
 
-    C:\Users\Star\OneDrive\Documents\Important\Projects\Distributed-Queue Engine\node_modules\uuid\dist-node\index.js:1
-    export { default as MAX } from './max.js';
-    ^^^^^^
+  console.log
+    ­ƒôí Loaded Lua command: redis.enqueue()
 
-    SyntaxError: Unexpected token 'export'
+      at loadScripts (src/scripts.ts:50:13)
 
-    > 1 | import { v4 as uuidv4 } from "uuid";
-        | ^
-      2 |
-      3 | /**
-      4 |  * Generates a unique Job ID.
+  console.log
+    ­ƒôí Loaded Lua command: redis.fail()
 
-      at Runtime.createScriptFromCode (node_modules/jest-runtime/build/index.js:1314:40)
-      at Object.<anonymous> (src/utils.ts:1:1)
-      at Object.<anonymous> (src/Queue.ts:3:1)
-      at Object.<anonymous> (tests/worker.test.ts:15:1)
+      at loadScripts (src/scripts.ts:50:13)
 
-FAIL tests/queue.test.ts
-  ÔùÅ Test suite failed to run
+  console.log
+    ­ƒôí Loaded Lua command: redis.heartbeat()
 
-    Jest encountered an unexpected token
+      at loadScripts (src/scripts.ts:50:13)
 
-    Jest failed to parse a file. This happens e.g. when your code or its dependencies use non-standard JavaScript syntax, or when Jest is not configured to support such syntax.
+  console.log
+    ­ƒôí Loaded Lua command: redis.hello()
 
-    Out of the box Jest supports Babel, which will be used to transform your files into valid JS based on your Babel configuration.
+      at loadScripts (src/scripts.ts:50:13)
 
-    By default "node_modules" folder is ignored by transformers.
+  console.log
+    ­ƒôí Loaded Lua command: redis.moveToActive()
 
-    Here's what you can do:
-     ÔÇó If you are trying to use ECMAScript Modules, see https://jestjs.io/docs/ecmascript-modules for how to enable it.
-     ÔÇó If you are trying to use TypeScript, see https://jestjs.io/docs/getting-started#using-typescript
-     ÔÇó To have some of your "node_modules" files transformed, you can specify a custom "transformIgnorePatterns" in your config.
-     ÔÇó If you need a custom transformation, specify a "transform" option in your config.
-     ÔÇó If you simply want to mock your non-JS modules (e.g. binary assets) you can stub them out with the "moduleNameMapper" config option.
+      at loadScripts (src/scripts.ts:50:13)
 
-    You'll find more details and examples of these config options in the docs:
-    https://jestjs.io/docs/configuration
-    For information about custom transformations, see:
-    https://jestjs.io/docs/code-transformation
+  console.log
+    ­ƒôí Loaded Lua command: redis.updateProgress()
 
-    Details:
+      at loadScripts (src/scripts.ts:50:13)
 
-    C:\Users\Star\OneDrive\Documents\Important\Projects\Distributed-Queue Engine\node_modules\uuid\dist-node\index.js:1
-    export { default as MAX } from './max.js';
-    ^^^^^^
+  console.log
+    [Worker:test-worker-unit] ­ƒæÀ Worker started (concurrency: 1)
 
-    SyntaxError: Unexpected token 'export'
+      at Worker.log (src/Worker.ts:77:13)
 
-    > 1 | import { v4 as uuidv4 } from "uuid";
-        | ^
-      2 |
-      3 | /**
-      4 |  * Generates a unique Job ID.
+  console.log
+    [Worker:test-worker-unit] ­ƒôí Subscribed to cancellation events on: queue:test-worker-unit:events
 
-      at Runtime.createScriptFromCode (node_modules/jest-runtime/build/index.js:1314:40)
-      at Object.<anonymous> (src/utils.ts:1:1)
-      at Object.<anonymous> (src/Queue.ts:3:1)
-      at Object.<anonymous> (tests/queue.test.ts:16:1)
+      at Worker.log (src/Worker.ts:77:13)
 
-Test Suites: 2 failed, 2 total
-Tests:       0 total
+  console.log
+    [Worker:test-worker-unit] ­ƒÜÇ Processing job [test-worker-unit]: ping (ID: 1774960388283-adedc341-f8bc-46cf-9768-43019f9271c0)
+
+      at Worker.log (src/Worker.ts:77:13)
+
+  console.log
+    [Worker:test-worker-unit] Ô£à Job completed: 1774960388283-adedc341-f8bc-46cf-9768-43019f9271c0 (10ms)
+
+      at Worker.log (src/Worker.ts:77:13)
+
+  console.log
+    [Worker:test-worker-unit] ­ƒøæ Stopping worker gracefully...
+
+      at Worker.log (src/Worker.ts:77:13)
+
+  console.log
+    [Worker:test-worker-unit] Ô£à Worker stopped.
+
+      at Worker.log (src/Worker.ts:77:13)
+
+  console.log
+    [Worker:test-worker-unit] ­ƒæÀ Worker started (concurrency: 3)
+
+      at Worker.log (src/Worker.ts:77:13)
+
+  console.log
+    [Worker:test-worker-unit] ­ƒôí Subscribed to cancellation events on: queue:test-worker-unit:events
+
+      at Worker.log (src/Worker.ts:77:13)
+
+  console.log
+    [Worker:test-worker-unit] ­ƒÜÇ Processing job [test-worker-unit]: task (ID: 1774960388521-4208f463-79aa-4273-91ff-87de15ecf2de)
+
+      at Worker.log (src/Worker.ts:77:13)
+
+  console.log
+    [Worker:test-worker-unit] Ô£à Job completed: 1774960388521-4208f463-79aa-4273-91ff-87de15ecf2de (5ms)
+
+      at Worker.log (src/Worker.ts:77:13)
+
+  console.log
+    [Worker:test-worker-unit] ­ƒÜÇ Processing job [test-worker-unit]: task (ID: 1774960388526-67a9c776-fa07-4b87-808c-d3b3acb30ce2)
+
+      at Worker.log (src/Worker.ts:77:13)
+
+  console.log
+    [Worker:test-worker-unit] Ô£à Job completed: 1774960388526-67a9c776-fa07-4b87-808c-d3b3acb30ce2 (4ms)
+
+      at Worker.log (src/Worker.ts:77:13)
+
+  console.log
+    [Worker:test-worker-unit] ­ƒÜÇ Processing job [test-worker-unit]: task (ID: 1774960388528-0f52c7fd-d1c8-4576-bd37-fba75d2525b3)
+
+      at Worker.log (src/Worker.ts:77:13)
+
+  console.log
+    [Worker:test-worker-unit] Ô£à Job completed: 1774960388528-0f52c7fd-d1c8-4576-bd37-fba75d2525b3 (4ms)
+
+      at Worker.log (src/Worker.ts:77:13)
+
+  console.log
+    [Worker:test-worker-unit] ­ƒÜÇ Processing job [test-worker-unit]: task (ID: 1774960388533-8d14884e-d814-4414-84f2-e8f3ca50af06)
+
+      at Worker.log (src/Worker.ts:77:13)
+
+  console.log
+    [Worker:test-worker-unit] Ô£à Job completed: 1774960388533-8d14884e-d814-4414-84f2-e8f3ca50af06 (4ms)
+
+      at Worker.log (src/Worker.ts:77:13)
+
+  console.log
+    [Worker:test-worker-unit] ­ƒÜÇ Processing job [test-worker-unit]: task (ID: 1774960388536-d872aef9-b705-4bab-b638-fdc20eee2bee)
+
+      at Worker.log (src/Worker.ts:77:13)
+
+  console.log
+    [Worker:test-worker-unit] Ô£à Job completed: 1774960388536-d872aef9-b705-4bab-b638-fdc20eee2bee (4ms)
+
+      at Worker.log (src/Worker.ts:77:13)
+
+  console.log
+    [Worker:test-worker-unit] ­ƒÜÇ Processing job [test-worker-unit]: task (ID: 1774960388539-f4f90627-789d-45a9-9339-2f50d0f71330)
+
+      at Worker.log (src/Worker.ts:77:13)
+
+  console.log
+    [Worker:test-worker-unit] Ô£à Job completed: 1774960388539-f4f90627-789d-45a9-9339-2f50d0f71330 (4ms)
+
+      at Worker.log (src/Worker.ts:77:13)
+
+  console.log
+    [Worker:test-worker-unit] ­ƒÜÇ Processing job [test-worker-unit]: task (ID: 1774960388552-9243921b-418c-4dbf-b493-10c5f3894dc9)
+
+      at Worker.log (src/Worker.ts:77:13)
+
+  console.log
+    [Worker:test-worker-unit] Ô£à Job completed: 1774960388552-9243921b-418c-4dbf-b493-10c5f3894dc9 (4ms)
+
+      at Worker.log (src/Worker.ts:77:13)
+
+  console.log
+    [Worker:test-worker-unit] ­ƒÜÇ Processing job [test-worker-unit]: task (ID: 1774960388555-9a1f0b62-39d5-45b9-b6ad-9102a79dde5f)
+
+      at Worker.log (src/Worker.ts:77:13)
+
+  console.log
+    [Worker:test-worker-unit] Ô£à Job completed: 1774960388555-9a1f0b62-39d5-45b9-b6ad-9102a79dde5f (3ms)
+
+      at Worker.log (src/Worker.ts:77:13)
+
+  console.log
+    [Worker:test-worker-unit] ­ƒÜÇ Processing job [test-worker-unit]: task (ID: 1774960388557-c8a117fe-77da-453f-bf3c-4bc063cd8667)
+
+      at Worker.log (src/Worker.ts:77:13)
+
+  console.log
+    [Worker:test-worker-unit] Ô£à Job completed: 1774960388557-c8a117fe-77da-453f-bf3c-4bc063cd8667 (3ms)
+
+      at Worker.log (src/Worker.ts:77:13)
+
+  console.log
+    [Worker:test-worker-unit] ­ƒÜÇ Processing job [test-worker-unit]: task (ID: 1774960388559-caed473c-9c3d-4e96-880a-8a7949d60637)
+
+      at Worker.log (src/Worker.ts:77:13)
+
+  console.log
+    [Worker:test-worker-unit] Ô£à Job completed: 1774960388559-caed473c-9c3d-4e96-880a-8a7949d60637 (3ms)
+
+      at Worker.log (src/Worker.ts:77:13)
+
+  console.log
+    [Worker:test-worker-unit] ­ƒøæ Stopping worker gracefully...
+
+      at Worker.log (src/Worker.ts:77:13)
+
+  console.log
+    [Worker:test-worker-unit] Ô£à Worker stopped.
+
+      at Worker.log (src/Worker.ts:77:13)
+
+  console.log
+    [Worker:test-worker-unit] ­ƒæÀ Worker started (concurrency: 1)
+
+      at Worker.log (src/Worker.ts:77:13)
+
+  console.log
+    [Worker:test-worker-unit] ­ƒôí Subscribed to cancellation events on: queue:test-worker-unit:events
+
+      at Worker.log (src/Worker.ts:77:13)
+
+  console.log
+    [Worker:test-worker-unit] ­ƒÜÇ Processing job [test-worker-unit]: count-me (ID: 1774960388735-364c36f5-90f5-4830-a648-6a3f9586f34d)
+
+      at Worker.log (src/Worker.ts:77:13)
+
+  console.log
+    [Worker:test-worker-unit] Ô£à Job completed: 1774960388735-364c36f5-90f5-4830-a648-6a3f9586f34d (10ms)
+
+      at Worker.log (src/Worker.ts:77:13)
+
+  console.log
+    [Worker:test-worker-unit] ­ƒøæ Stopping worker gracefully...
+
+      at Worker.log (src/Worker.ts:77:13)
+
+  console.log
+    [Worker:test-worker-unit] Ô£à Worker stopped.
+
+      at Worker.log (src/Worker.ts:77:13)
+
+  console.log
+    [Worker:test-worker-unit] ­ƒæÀ Worker started (concurrency: 1)
+
+      at Worker.log (src/Worker.ts:77:13)
+
+  console.log
+    [Worker:test-worker-unit] ­ƒôí Subscribed to cancellation events on: queue:test-worker-unit:events
+
+      at Worker.log (src/Worker.ts:77:13)
+
+  console.log
+    [Worker:test-worker-unit] ­ƒÜÇ Processing job [test-worker-unit]: always-fail (ID: 1774960388879-21148459-d34e-4c02-9d54-0bf31601ad4b)
+
+      at Worker.log (src/Worker.ts:77:13)
+
+  console.log
+    [Worker:test-worker-unit] ÔØî Job failed: 1774960388879-21148459-d34e-4c02-9d54-0bf31601ad4b - Intentional failure for testing
+
+      at Worker.log (src/Worker.ts:77:13)
+
+  console.log
+    [Worker:test-worker-unit] ­ƒøæ Stopping worker gracefully...
+
+      at Worker.log (src/Worker.ts:77:13)
+
+  console.log
+    [Worker:test-worker-unit] Ô£à Worker stopped.
+
+      at Worker.log (src/Worker.ts:77:13)
+
+  console.log
+    [Worker:test-worker-unit] ­ƒæÀ Worker started (concurrency: 1)
+
+      at Worker.log (src/Worker.ts:77:13)
+
+  console.log
+    [Worker:test-worker-unit] ­ƒôí Subscribed to cancellation events on: queue:test-worker-unit:events
+
+      at Worker.log (src/Worker.ts:77:13)
+
+  console.log
+    [Worker:test-worker-unit] ­ƒÜÇ Processing job [test-worker-unit]: fail-no-retry (ID: 1774960389021-2ee71c1b-6195-43bb-9caa-c0ff2ca24ad2)
+
+      at Worker.log (src/Worker.ts:77:13)
+
+  console.log
+    [Worker:test-worker-unit] ÔØî Job failed: 1774960389021-2ee71c1b-6195-43bb-9caa-c0ff2ca24ad2 - fail
+
+      at Worker.log (src/Worker.ts:77:13)
+
+  console.log
+    [Worker:test-worker-unit] ­ƒøæ Stopping worker gracefully...
+
+      at Worker.log (src/Worker.ts:77:13)
+
+  console.log
+    [Worker:test-worker-unit] Ô£à Worker stopped.
+
+      at Worker.log (src/Worker.ts:77:13)
+
+  console.log
+    [Worker:test-worker-unit] ­ƒæÀ Worker started (concurrency: 3)
+
+      at Worker.log (src/Worker.ts:77:13)
+
+  console.log
+    [Worker:test-worker-unit] ­ƒôí Subscribed to cancellation events on: queue:test-worker-unit:events
+
+      at Worker.log (src/Worker.ts:77:13)
+
+  console.log
+    [Worker:test-worker-unit] ­ƒÜÇ Processing job [test-worker-unit]: fail-all (ID: 1774960389170-a04f7114-a3b1-487f-b306-4eb0d4e574da)
+
+      at Worker.log (src/Worker.ts:77:13)
+
+  console.log
+    [Worker:test-worker-unit] ÔØî Job failed: 1774960389170-a04f7114-a3b1-487f-b306-4eb0d4e574da - always fail
+
+      at Worker.log (src/Worker.ts:77:13)
+
+  console.log
+    [Worker:test-worker-unit] ­ƒÜÇ Processing job [test-worker-unit]: fail-all (ID: 1774960389171-ebb35d18-7efe-483e-9bc9-260118ba54a4)
+
+      at Worker.log (src/Worker.ts:77:13)
+
+  console.log
+    [Worker:test-worker-unit] ÔØî Job failed: 1774960389171-ebb35d18-7efe-483e-9bc9-260118ba54a4 - always fail
+
+      at Worker.log (src/Worker.ts:77:13)
+
+  console.log
+    [Worker:test-worker-unit] ­ƒÜÇ Processing job [test-worker-unit]: fail-all (ID: 1774960389173-277d63ad-1b17-4be1-b15f-512befb414da)
+
+      at Worker.log (src/Worker.ts:77:13)
+
+  console.log
+    [Worker:test-worker-unit] ÔØî Job failed: 1774960389173-277d63ad-1b17-4be1-b15f-512befb414da - always fail
+
+      at Worker.log (src/Worker.ts:77:13)
+
+  console.log
+    [Worker:test-worker-unit] ­ƒÜÇ Processing job [test-worker-unit]: fail-all (ID: 1774960389174-2f068912-7c22-433a-910b-ab20a0f6e243)
+
+      at Worker.log (src/Worker.ts:77:13)
+
+  console.log
+    [Worker:test-worker-unit] ÔØî Job failed: 1774960389174-2f068912-7c22-433a-910b-ab20a0f6e243 - always fail
+
+      at Worker.log (src/Worker.ts:77:13)
+
+  console.log
+    [Worker:test-worker-unit] ­ƒÜÇ Processing job [test-worker-unit]: fail-all (ID: 1774960389176-bc991d8f-9a84-4ada-a94e-ca5ff27df22e)
+
+      at Worker.log (src/Worker.ts:77:13)
+
+  console.log
+    [Worker:test-worker-unit] ÔØî Job failed: 1774960389176-bc991d8f-9a84-4ada-a94e-ca5ff27df22e - always fail
+
+      at Worker.log (src/Worker.ts:77:13)
+
+  console.log
+    [Worker:test-worker-unit] ­ƒÜÇ Processing job [test-worker-unit]: fail-all (ID: 1774960389177-f886b140-5201-404c-8507-1befd59f98c2)
+
+      at Worker.log (src/Worker.ts:77:13)
+
+  console.log
+    [Worker:test-worker-unit] ÔØî Job failed: 1774960389177-f886b140-5201-404c-8507-1befd59f98c2 - always fail
+
+      at Worker.log (src/Worker.ts:77:13)
+
+  console.log
+    [Worker:test-worker-unit] ­ƒÜÇ Processing job [test-worker-unit]: fail-all (ID: 1774960389178-4071b3ba-2c20-4f59-880d-8c74699cb698)
+
+      at Worker.log (src/Worker.ts:77:13)
+
+  console.log
+    [Worker:test-worker-unit] ÔØî Job failed: 1774960389178-4071b3ba-2c20-4f59-880d-8c74699cb698 - always fail
+
+      at Worker.log (src/Worker.ts:77:13)
+
+  console.log
+    [Worker:test-worker-unit] ­ƒÜÇ Processing job [test-worker-unit]: fail-all (ID: 1774960389180-f6ee2999-e2b5-4b4f-abeb-2e27b0f67c46)
+
+      at Worker.log (src/Worker.ts:77:13)
+
+  console.log
+    [Worker:test-worker-unit] ÔØî Job failed: 1774960389180-f6ee2999-e2b5-4b4f-abeb-2e27b0f67c46 - always fail
+
+      at Worker.log (src/Worker.ts:77:13)
+
+  console.log
+    [Worker:test-worker-unit] ­ƒÜÇ Processing job [test-worker-unit]: fail-all (ID: 1774960389181-cb7d33c0-35ea-46b8-b8af-4b723bea8d51)
+
+      at Worker.log (src/Worker.ts:77:13)
+
+  console.log
+    [Worker:test-worker-unit] ÔØî Job failed: 1774960389181-cb7d33c0-35ea-46b8-b8af-4b723bea8d51 - always fail
+
+      at Worker.log (src/Worker.ts:77:13)
+
+  console.log
+    [Worker:test-worker-unit] ­ƒÜÇ Processing job [test-worker-unit]: fail-all (ID: 1774960389184-7fb0b005-22dd-437e-9c23-d23ef5abddfe)
+
+      at Worker.log (src/Worker.ts:77:13)
+
+  console.log
+    [Worker:test-worker-unit] ÔØî Job failed: 1774960389184-7fb0b005-22dd-437e-9c23-d23ef5abddfe - always fail
+
+      at Worker.log (src/Worker.ts:77:13)
+
+  console.log
+    [Worker:test-worker-unit] ­ƒøæ Stopping worker gracefully...
+
+      at Worker.log (src/Worker.ts:77:13)
+
+  console.log
+    [Worker:test-worker-unit] Ô£à Worker stopped.
+
+      at Worker.log (src/Worker.ts:77:13)
+
+  console.log
+    [Worker:test-worker-unit] ­ƒæÀ Worker started (concurrency: 1)
+
+      at Worker.log (src/Worker.ts:77:13)
+
+  console.log
+    [Worker:test-worker-unit] ­ƒôí Subscribed to cancellation events on: queue:test-worker-unit:events
+
+      at Worker.log (src/Worker.ts:77:13)
+
+  console.log
+    [Worker:test-worker-unit] ­ƒÜÇ Processing job [test-worker-unit]: flaky (ID: 1774960389333-d065d1d1-d6c6-482f-b244-38620a8e2e84)
+
+      at Worker.log (src/Worker.ts:77:13)
+
+  console.log
+    [Worker:test-worker-unit] ÔØî Job failed: 1774960389333-d065d1d1-d6c6-482f-b244-38620a8e2e84 - First attempt fails
+
+      at Worker.log (src/Worker.ts:77:13)
+
+  console.log
+    [Worker:test-worker-unit] ­ƒÜÇ Processing job [test-worker-unit]: flaky (ID: 1774960389333-d065d1d1-d6c6-482f-b244-38620a8e2e84)
+
+      at Worker.log (src/Worker.ts:77:13)
+
+  console.log
+    [Worker:test-worker-unit] Ô£à Job completed: 1774960389333-d065d1d1-d6c6-482f-b244-38620a8e2e84 (3ms)
+
+      at Worker.log (src/Worker.ts:77:13)
+
+  console.log
+    [Worker:test-worker-unit] ­ƒøæ Stopping worker gracefully...
+
+      at Worker.log (src/Worker.ts:77:13)
+
+  console.log
+    [Worker:test-worker-unit] Ô£à Worker stopped.
+
+      at Worker.log (src/Worker.ts:77:13)
+
+  console.log
+    [Worker:test-worker-unit] ­ƒæÀ Worker started (concurrency: 1)
+
+      at Worker.log (src/Worker.ts:77:13)
+
+  console.log
+    [Worker:test-worker-unit] ­ƒôí Subscribed to cancellation events on: queue:test-worker-unit:events
+
+      at Worker.log (src/Worker.ts:77:13)
+
+  console.log
+    [Worker:test-worker-unit] ­ƒÜÇ Processing job [test-worker-unit]: batch-fail (ID: 1774960389489-fc33121e-5e51-4afa-b760-52a479521b5a)
+
+      at Worker.log (src/Worker.ts:77:13)
+
+  console.log
+    [Worker:test-worker-unit] ÔØî Job failed: 1774960389489-fc33121e-5e51-4afa-b760-52a479521b5a - fail
+
+      at Worker.log (src/Worker.ts:77:13)
+
+  console.log
+    [Worker:test-worker-unit] ­ƒÜÇ Processing job [test-worker-unit]: batch-fail (ID: 1774960389491-c41000d0-df44-4b0e-bed7-4c995545ffbe)
+
+      at Worker.log (src/Worker.ts:77:13)
+
+  console.log
+    [Worker:test-worker-unit] ÔØî Job failed: 1774960389491-c41000d0-df44-4b0e-bed7-4c995545ffbe - fail
+
+      at Worker.log (src/Worker.ts:77:13)
+
+  console.log
+    [Worker:test-worker-unit] ­ƒÜÇ Processing job [test-worker-unit]: batch-fail (ID: 1774960389492-99d86195-cf77-459b-a685-ce8baa2c084d)
+
+      at Worker.log (src/Worker.ts:77:13)
+
+  console.log
+    [Worker:test-worker-unit] ÔØî Job failed: 1774960389492-99d86195-cf77-459b-a685-ce8baa2c084d - fail
+
+      at Worker.log (src/Worker.ts:77:13)
+
+  console.log
+    [Worker:test-worker-unit] ­ƒøæ Stopping worker gracefully...
+
+      at Worker.log (src/Worker.ts:77:13)
+
+  console.log
+    [Worker:test-worker-unit] Ô£à Worker stopped.
+
+      at Worker.log (src/Worker.ts:77:13)
+
+  console.log
+    [Worker:test-worker-unit] ­ƒæÀ Worker started (concurrency: 1)
+
+      at Worker.log (src/Worker.ts:77:13)
+
+  console.log
+    [Worker:test-worker-unit] ­ƒôí Subscribed to cancellation events on: queue:test-worker-unit:events
+
+      at Worker.log (src/Worker.ts:77:13)
+
+  console.log
+    [Worker:test-worker-unit] ­ƒÜÇ Processing job [test-worker-unit]: batch-fail (ID: 1774960389489-fc33121e-5e51-4afa-b760-52a479521b5a)
+
+      at Worker.log (src/Worker.ts:77:13)
+
+  console.log
+    [Worker:test-worker-unit] Ô£à Job completed: 1774960389489-fc33121e-5e51-4afa-b760-52a479521b5a (4ms)
+
+      at Worker.log (src/Worker.ts:77:13)
+
+  console.log
+    [Worker:test-worker-unit] ­ƒÜÇ Processing job [test-worker-unit]: batch-fail (ID: 1774960389491-c41000d0-df44-4b0e-bed7-4c995545ffbe)
+
+      at Worker.log (src/Worker.ts:77:13)
+
+  console.log
+    [Worker:test-worker-unit] Ô£à Job completed: 1774960389491-c41000d0-df44-4b0e-bed7-4c995545ffbe (5ms)
+
+      at Worker.log (src/Worker.ts:77:13)
+
+  console.log
+    [Worker:test-worker-unit] ­ƒÜÇ Processing job [test-worker-unit]: batch-fail (ID: 1774960389492-99d86195-cf77-459b-a685-ce8baa2c084d)
+
+      at Worker.log (src/Worker.ts:77:13)
+
+  console.log
+    [Worker:test-worker-unit] Ô£à Job completed: 1774960389492-99d86195-cf77-459b-a685-ce8baa2c084d (3ms)
+
+      at Worker.log (src/Worker.ts:77:13)
+
+  console.log
+    [Worker:test-worker-unit] ­ƒøæ Stopping worker gracefully...
+
+      at Worker.log (src/Worker.ts:77:13)
+
+  console.log
+    [Worker:test-worker-unit] Ô£à Worker stopped.
+
+      at Worker.log (src/Worker.ts:77:13)
+
+  console.log
+    [Worker:test-worker-unit] ­ƒæÀ Worker started (concurrency: 1)
+
+      at Worker.log (src/Worker.ts:77:13)
+
+  console.log
+    [Worker:test-worker-unit] ­ƒôí Subscribed to cancellation events on: queue:test-worker-unit:events
+
+      at Worker.log (src/Worker.ts:77:13)
+
+  console.log
+    [Worker:test-worker-unit] ÔÅ©´©Å  Queue 'test-worker-unit' is paused ÔÇö skipping poll.
+
+      at Worker.log (src/Worker.ts:77:13)
+
+  console.log
+    [Worker:test-worker-unit] ÔÅ©´©Å  Queue 'test-worker-unit' is paused ÔÇö skipping poll.
+
+      at Worker.log (src/Worker.ts:77:13)
+
+  console.log
+    [Worker:test-worker-unit] ÔÅ©´©Å  Queue 'test-worker-unit' is paused ÔÇö skipping poll.
+
+      at Worker.log (src/Worker.ts:77:13)
+
+  console.log
+    [Worker:test-worker-unit] ÔÅ©´©Å  Queue 'test-worker-unit' is paused ÔÇö skipping poll.
+
+      at Worker.log (src/Worker.ts:77:13)
+
+  console.log
+    [Worker:test-worker-unit] ÔÅ©´©Å  Queue 'test-worker-unit' is paused ÔÇö skipping poll.
+
+      at Worker.log (src/Worker.ts:77:13)
+
+  console.log
+    [Worker:test-worker-unit] ÔÅ©´©Å  Queue 'test-worker-unit' is paused ÔÇö skipping poll.
+
+      at Worker.log (src/Worker.ts:77:13)
+
+  console.log
+    [Worker:test-worker-unit] ÔÅ©´©Å  Queue 'test-worker-unit' is paused ÔÇö skipping poll.
+
+      at Worker.log (src/Worker.ts:77:13)
+
+  console.log
+    [Worker:test-worker-unit] ÔÅ©´©Å  Queue 'test-worker-unit' is paused ÔÇö skipping poll.
+
+      at Worker.log (src/Worker.ts:77:13)
+
+  console.log
+    [Worker:test-worker-unit] ­ƒÜÇ Processing job [test-worker-unit]: should-not-run (ID: 1774960389839-3dceb04f-5994-49ff-9c33-416f1958a913)
+
+      at Worker.log (src/Worker.ts:77:13)
+
+  console.log
+    [Worker:test-worker-unit] Ô£à Job completed: 1774960389839-3dceb04f-5994-49ff-9c33-416f1958a913 (3ms)
+
+      at Worker.log (src/Worker.ts:77:13)
+
+  console.log
+    [Worker:test-worker-unit] ­ƒøæ Stopping worker gracefully...
+
+      at Worker.log (src/Worker.ts:77:13)
+
+  console.log
+    [Worker:test-worker-unit] Ô£à Worker stopped.
+
+      at Worker.log (src/Worker.ts:77:13)
+
+FAIL tests/worker.test.ts (6.345 s)
+  Worker: successful processing
+    ÔêÜ should process a single job and metrics show 1 completed (401 ms)
+    ÔêÜ should process 10 jobs and show 10 completed (224 ms)
+    ÔêÜ should update jobsProcessed counter accurately (151 ms)
+  Worker: failure handling
+    ÔêÜ should move job to failed after maxAttempts exhausted (143 ms)
+    ├ù should keep job in failed (not waiting) when maxAttempts=1 (147 ms)
+    ÔêÜ should process 10 failing jobs and all appear in failed (150 ms)
+  Worker: retry logic
+    ÔêÜ should retry and eventually succeed on second attempt (168 ms)
+    ÔêÜ retryAll should re-queue all failed jobs (348 ms)
+  Worker: pause/resume
+    ÔêÜ should not process jobs while queue is paused (945 ms)
+
+  ÔùÅ Worker: failure handling ÔÇ║ should keep job in failed (not waiting) when maxAttempts=1
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 1
+    Received: 0
+
+      183 |     const fetched = await queue.getJob(job.id);
+      184 |     expect(fetched?.status).toBe('FAILED');
+    > 185 |     expect(fetched?.attempts).toBe(1);
+          |                               ^
+      186 |   });
+      187 |
+      188 |   it('should process 10 failing jobs and all appear in failed', async () => {
+
+      at Object.<anonymous> (tests/worker.test.ts:185:31)
+
+  console.log
+    ­ƒôí Loaded Lua command: redis.cancel()
+
+      at loadScripts (src/scripts.ts:50:13)
+
+  console.log
+    ­ƒôí Loaded Lua command: redis.cleanStalled()
+
+      at loadScripts (src/scripts.ts:50:13)
+
+  console.log
+    ­ƒôí Loaded Lua command: redis.cleanup()
+
+      at loadScripts (src/scripts.ts:50:13)
+
+  console.log
+    ­ƒôí Loaded Lua command: redis.complete()
+
+      at loadScripts (src/scripts.ts:50:13)
+
+  console.log
+    ­ƒôí Loaded Lua command: redis.enqueue()
+
+      at loadScripts (src/scripts.ts:50:13)
+
+  console.log
+    ­ƒôí Loaded Lua command: redis.fail()
+
+      at loadScripts (src/scripts.ts:50:13)
+
+  console.log
+    ­ƒôí Loaded Lua command: redis.heartbeat()
+
+      at loadScripts (src/scripts.ts:50:13)
+
+  console.log
+    ­ƒôí Loaded Lua command: redis.hello()
+
+      at loadScripts (src/scripts.ts:50:13)
+
+  console.log
+    ­ƒôí Loaded Lua command: redis.moveToActive()
+
+      at loadScripts (src/scripts.ts:50:13)
+
+  console.log
+    ­ƒôí Loaded Lua command: redis.updateProgress()
+
+      at loadScripts (src/scripts.ts:50:13)
+
+PASS tests/queue.test.ts
+  Queue.add()
+    ÔêÜ should return a job with the correct name and data (29 ms)
+    ÔêÜ should default to normal priority and 3 maxAttempts (6 ms)
+    ÔêÜ should respect custom priority option (5 ms)
+    ÔêÜ should add job to the waiting sorted set immediately (8 ms)
+    ÔêÜ should put delayed jobs in the delayed set (8 ms)
+    ÔêÜ should add multiple jobs without collision (11 ms)
+  Queue.getJob()
+    ÔêÜ should return the job by ID (7 ms)
+    ÔêÜ should return null for a non-existent job ID (5 ms)
+  Queue.getMetrics()
+    ÔêÜ should return all zeros on an empty queue (6 ms)
+    ÔêÜ should count waiting jobs correctly (10 ms)
+    ÔêÜ should count cancelled jobs after cancel() (12 ms)
+  Queue.clearCompleted()
+    ÔêÜ should return 0 when there is nothing to clear (5 ms)
+  Queue.isPaused()
+    ÔêÜ should not be paused by default (5 ms)
+    ÔêÜ should be paused after pauseQueue() (7 ms)
+    ÔêÜ should be unpaused after resumeQueue() (11 ms)
+
+Test Suites: 1 failed, 1 passed, 2 total
+Tests:       1 failed, 23 passed, 24 total
 Snapshots:   0 total
-Time:        3.427 s
+Time:        7.55 s, estimated 19 s
 Ran all test suites matching tests/queue.test.ts|tests/worker.test.ts.

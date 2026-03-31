@@ -181,7 +181,7 @@ describe('Worker: failure handling', () => {
     });
 
     const fetched = await queue.getJob(job.id);
-    expect(fetched?.status).toBe('failed');
+    expect(fetched?.status).toBe('FAILED');
     expect(fetched?.attempts).toBe(1);
   });
 

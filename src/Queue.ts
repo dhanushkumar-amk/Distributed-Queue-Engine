@@ -61,10 +61,9 @@ export class Queue<T = any> extends EventEmitter {
    * Returns jobs that are delayed (ready at a future timestamp).
    */
   async getDelayedJobs(): Promise<string[]> {
-    const wk = waitingKey(this.queueName);
-    const now = Date.now();
-    // In our Sorted Set, delayed jobs have scores > now
-    return await this.redis.zrangebyscore(wk, now + 1, "+inf");
+    const dk = delayedKey(this.queueName);
+    // All entries in the delayed sorted set are future-scheduled jobs
+    return await this.redis.zrange(dk, 0, -1);
   }
 
   /**

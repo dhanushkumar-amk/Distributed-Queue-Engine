@@ -235,10 +235,11 @@ export class Worker<T = any> extends EventEmitter {
       // Call user logic
       const result = await this.processor(job);
 
-      // Resolve states
+      // Resolve states — Lua complete.lua expects 4 keys: jobKey, activeKey, completedKey, throughputKey
       const completedKeyVal = completedKey(qName);
+      const throughputKeyVal = `queue:${qName}:throughput:completed:minute`;
       const finishedAt = Date.now();
-      await (this.redis as any).complete(3, jk, ak, completedKeyVal, job.id, finishedAt);
+      await (this.redis as any).complete(4, jk, ak, completedKeyVal, throughputKeyVal, job.id, finishedAt);
 
       // ── Phase 36: Record processing duration in latency sorted set ────────
       // Score = duration ms, member = jobId. Cap at 1000 entries.
