@@ -19,6 +19,10 @@ import {
   RotateCcw,
   ChevronDown,
   Clock,
+  Pause,
+  Play,
+  SkipForward,
+  Eraser,
 } from 'lucide-react';
 import { io, Socket } from 'socket.io-client';
 
@@ -80,6 +84,11 @@ export default function App() {
   const [isCleaning, setIsCleaning] = useState(false);
   const [throughput, setThroughput] = useState<ThroughputBucket[]>([]);
   const [showChart, setShowChart] = useState(false);
+  // Phase 37 state
+  const [isPaused, setIsPaused] = useState(false);
+  const [isRetryingAll, setIsRetryingAll] = useState(false);
+  const [isClearing, setIsClearing] = useState(false);
+  const [isTogglingPause, setIsTogglingPause] = useState(false);
   const socketRef = useRef<Socket | null>(null);
 
   // Fetch queue list on mount
@@ -94,6 +103,19 @@ export default function App() {
       })
       .catch(() => setError('Cluster API unreachable. Verify server status.'));
   }, []);
+
+  // Phase 37: Poll pause state whenever queue changes
+  useEffect(() => {
+    if (!selectedQueue) return;
+    const checkPause = () =>
+      fetch(`/api/queues/${selectedQueue}/pause`)
+        .then(r => r.ok ? r.json() : null)
+        .then(d => { if (d) setIsPaused(d.paused); })
+        .catch(() => {});
+    checkPause();
+    const t = setInterval(checkPause, POLL_INTERVAL);
+    return () => clearInterval(t);
+  }, [selectedQueue]);
 
   // Fetch throughput data
   const fetchThroughput = useCallback(async () => {
@@ -255,6 +277,56 @@ export default function App() {
     }
   };
 
+  // Phase 37: Retry all failed jobs in one click
+  const retryAllFailed = async () => {
+    if (!selectedQueue) return;
+    if (!confirm('Re-queue ALL failed jobs?')) return;
+    setIsRetryingAll(true);
+    try {
+      const res = await fetch(`/api/queues/${selectedQueue}/retry-all`, { method: 'POST' });
+      if (res.ok) {
+        const data = await res.json();
+        alert(`✅ Re-queued ${data.count} job(s)`);
+        setStatusFilter('waiting');
+        refreshDashboard(true);
+      }
+    } finally {
+      setIsRetryingAll(false);
+    }
+  };
+
+  // Phase 37: Clear completed jobs older than 1 hour
+  const clearOldCompleted = async () => {
+    if (!selectedQueue) return;
+    if (!confirm('Clear completed jobs older than 1 hour?')) return;
+    setIsClearing(true);
+    try {
+      const res = await fetch(`/api/queues/${selectedQueue}/jobs/completed`, { method: 'DELETE' });
+      if (res.ok) {
+        const data = await res.json();
+        alert(`🗑️ Cleared ${data.count} job(s)`);
+        refreshDashboard(true);
+      }
+    } finally {
+      setIsClearing(false);
+    }
+  };
+
+  // Phase 37: Toggle queue pause/resume
+  const togglePause = async () => {
+    if (!selectedQueue) return;
+    setIsTogglingPause(true);
+    try {
+      const method = isPaused ? 'DELETE' : 'POST';
+      const res = await fetch(`/api/queues/${selectedQueue}/pause`, { method });
+      if (res.ok) {
+        setIsPaused(!isPaused);
+      }
+    } finally {
+      setIsTogglingPause(false);
+    }
+  };
+
   // ── Error state ────────────────────────────────────────────────────────────
   if (loading && !error) {
     return (
@@ -322,6 +394,43 @@ export default function App() {
               <BarChart2 className="h-5 w-5" />
             </button>
 
+            {/* Phase 37 — Pause / Resume */}
+            <button
+              onClick={togglePause}
+              disabled={isTogglingPause}
+              title={isPaused ? 'Resume queue' : 'Pause queue'}
+              className={`h-10 px-4 flex items-center gap-2 rounded-xl border text-xs font-black uppercase tracking-wider transition-all active:scale-95 disabled:opacity-50
+                ${isPaused
+                  ? 'bg-amber-500 border-amber-500 text-white shadow-lg shadow-amber-200'
+                  : 'border-slate-200 bg-white text-slate-500 hover:bg-amber-50 hover:border-amber-300 hover:text-amber-600'}`}
+            >
+              {isPaused ? <Play className="h-4 w-4" /> : <Pause className="h-4 w-4" />}
+              {isPaused ? 'Resume' : 'Pause'}
+            </button>
+
+            {/* Phase 37 — Retry All Failed */}
+            <button
+              onClick={retryAllFailed}
+              disabled={isRetryingAll || !metrics?.failed}
+              title="Retry all failed jobs"
+              className="h-10 px-4 flex items-center gap-2 rounded-xl border border-slate-200 bg-white text-slate-500 text-xs font-black uppercase tracking-wider hover:bg-emerald-50 hover:border-emerald-300 hover:text-emerald-600 transition-all active:scale-95 disabled:opacity-40"
+            >
+              <SkipForward className="h-4 w-4" />
+              Retry All
+              {metrics?.failed ? <span className="bg-rose-100 text-rose-600 text-[9px] px-1.5 py-0.5 rounded-full font-mono">{metrics.failed}</span> : null}
+            </button>
+
+            {/* Phase 37 — Clear Completed */}
+            <button
+              onClick={clearOldCompleted}
+              disabled={isClearing}
+              title="Clear completed jobs older than 1 hour"
+              className="h-10 px-4 flex items-center gap-2 rounded-xl border border-slate-200 bg-white text-slate-500 text-xs font-black uppercase tracking-wider hover:bg-rose-50 hover:border-rose-300 hover:text-rose-600 transition-all active:scale-95 disabled:opacity-40"
+            >
+              <Eraser className="h-4 w-4" />
+              Clear Done
+            </button>
+
             <button
               onClick={() => refreshDashboard(true)}
               className={`h-10 w-10 flex items-center justify-center rounded-xl border border-slate-200 bg-white shadow-sm transition-all active:scale-95 ${isRefreshing ? 'text-blue-600' : 'text-slate-400 hover:text-slate-900 hover:bg-slate-50'}`}
@@ -331,6 +440,7 @@ export default function App() {
           </div>
         </div>
       </header>
+
 
       <main className="max-w-7xl mx-auto px-8 py-12">
 

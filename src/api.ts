@@ -133,7 +133,79 @@ export function createQueueRouter(registry: Record<string, Queue>): Router {
     }
   });
 
+  // ─── POST /queues/:name/retry-all ─────────────────────────
+  // Phase 37: Re-queues ALL jobs currently in the failed set.
+  router.post('/queues/:name/retry-all', async (req: Request, res: Response) => {
+    const name = p(req, 'name');
+    const queue = resolveQueue(res, name);
+    if (!queue) return;
+    try {
+      const count = await queue.retryAll();
+      res.json({ message: `Re-queued ${count} failed job(s).`, count });
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  // ─── DELETE /queues/:name/jobs/completed ───────────────────
+  // Phase 37: Clears completed jobs older than 1 hour (default).
+  router.delete('/queues/:name/jobs/completed', async (req: Request, res: Response) => {
+    const name = p(req, 'name');
+    const queue = resolveQueue(res, name);
+    if (!queue) return;
+    const maxAgeMs = req.query.maxAgeMs ? Number(req.query.maxAgeMs) : 60 * 60 * 1000;
+    try {
+      const count = await queue.clearCompleted(maxAgeMs);
+      res.json({ message: `Cleared ${count} completed job(s).`, count });
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  // ─── POST /queues/:name/pause ──────────────────────────────
+  // Phase 37: Pauses the queue — workers stop picking new jobs.
+  router.post('/queues/:name/pause', async (req: Request, res: Response) => {
+    const name = p(req, 'name');
+    const queue = resolveQueue(res, name);
+    if (!queue) return;
+    try {
+      await queue.pauseQueue();
+      res.json({ message: `Queue '${name}' paused.`, paused: true });
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  // ─── DELETE /queues/:name/pause ────────────────────────────
+  // Phase 37: Resumes the queue.
+  router.delete('/queues/:name/pause', async (req: Request, res: Response) => {
+    const name = p(req, 'name');
+    const queue = resolveQueue(res, name);
+    if (!queue) return;
+    try {
+      await queue.resumeQueue();
+      res.json({ message: `Queue '${name}' resumed.`, paused: false });
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  // ─── GET /queues/:name/pause ───────────────────────────────
+  // Phase 37: Returns whether the queue is currently paused.
+  router.get('/queues/:name/pause', async (req: Request, res: Response) => {
+    const name = p(req, 'name');
+    const queue = resolveQueue(res, name);
+    if (!queue) return;
+    try {
+      const paused = await queue.isPaused();
+      res.json({ queue: name, paused });
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
   // ─── POST /queues/:name/cleanup ───────────────────────────
+
   router.post('/queues/:name/cleanup', async (req: Request, res: Response) => {
     const name = p(req, 'name');
     const queue = resolveQueue(res, name);

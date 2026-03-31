@@ -2,7 +2,7 @@ import { Redis } from 'ioredis';
 import { EventEmitter } from 'events';
 import { generateJobId } from './utils';
 import { createJob, hydrateJob, Job, JobOptions, JobStatus, QueueMetrics, CleanupOptions, RepeatableJobDef } from './types';
-import { jobKey, waitingKey, delayedKey, activeKey, channelKey, completedKey, failedKey, cancelledKey, cronKey, latencyKey } from './keys';
+import { jobKey, waitingKey, delayedKey, activeKey, channelKey, completedKey, failedKey, cancelledKey, cronKey, latencyKey, pauseKey } from './keys';
 import { CronExpressionParser } from 'cron-parser';
 
 /**
@@ -277,7 +277,6 @@ export class Queue<T = any> extends EventEmitter {
     const fk = failedKey(this.queueName);
     const wk = waitingKey(this.queueName);
 
-    // Check if job exists in the failed set
     const score = await this.redis.zscore(fk, jobId);
     if (score === null) return false;
 
@@ -285,15 +284,86 @@ export class Queue<T = any> extends EventEmitter {
     if (!raw || !raw.id) return false;
 
     const now = Date.now();
-    // Move from failed → waiting with priority score 5 (normal)
     const pipeline = this.redis.pipeline();
     pipeline.zrem(fk, jobId);
     pipeline.hset(jk, 'status', 'WAITING', 'attempts', '0', 'runAt', String(now));
-    pipeline.zadd(wk, 5, jobId); // normal priority
+    pipeline.zadd(wk, now, jobId); // score = now (FIFO from failed)
     await pipeline.exec();
 
     this.emit('retried', jobId);
     return true;
+  }
+
+  /**
+   * Phase 37: Retries ALL jobs currently in the failed set.
+   * Returns the count of successfully re-queued jobs.
+   */
+  async retryAll(): Promise<number> {
+    const fk = failedKey(this.queueName);
+    // Grab all failed job IDs in one shot
+    const ids = await this.redis.zrange(fk, 0, -1);
+    if (ids.length === 0) return 0;
+
+    // Retry each one — pipeline them for speed
+    const wk  = waitingKey(this.queueName);
+    const now  = Date.now();
+    const pipeline = this.redis.pipeline();
+    for (const id of ids) {
+      const jk = jobKey(this.queueName, id);
+      pipeline.zrem(fk, id);
+      pipeline.hset(jk, 'status', 'WAITING', 'attempts', '0', 'runAt', String(now));
+      pipeline.zadd(wk, now, id);
+    }
+    await pipeline.exec();
+    this.emit('retried_all', ids.length);
+    return ids.length;
+  }
+
+  /**
+   * Phase 37: Removes all completed jobs older than `maxAgeMs` (default 3600000 = 1h).
+   * Returns the count of deleted jobs.
+   */
+  async clearCompleted(maxAgeMs: number = 60 * 60 * 1000): Promise<number> {
+    const ck      = completedKey(this.queueName);
+    const cutoff  = Date.now() - maxAgeMs;
+    const jobPfx  = `queue:${this.queueName}:jobs:`;
+
+    // Get all IDs with score (completedAt) <= cutoff
+    const ids = await this.redis.zrangebyscore(ck, '-inf', cutoff);
+    if (ids.length === 0) return 0;
+
+    const pipeline = this.redis.pipeline();
+    for (const id of ids) {
+      pipeline.del(`${jobPfx}${id}`);
+    }
+    pipeline.zremrangebyscore(ck, '-inf', cutoff);
+    await pipeline.exec();
+    return ids.length;
+  }
+
+  /**
+   * Phase 37: Pauses the queue — workers will stop picking up new jobs.
+   * Sets a simple Redis key that the Worker checks before each poll.
+   */
+  async pauseQueue(): Promise<void> {
+    await this.redis.set(pauseKey(this.queueName), '1');
+    this.emit('paused');
+  }
+
+  /**
+   * Phase 37: Resumes the queue.
+   */
+  async resumeQueue(): Promise<void> {
+    await this.redis.del(pauseKey(this.queueName));
+    this.emit('resumed');
+  }
+
+  /**
+   * Phase 37: Returns true if the queue is currently paused.
+   */
+  async isPaused(): Promise<boolean> {
+    const val = await this.redis.get(pauseKey(this.queueName));
+    return val === '1';
   }
 
   /**

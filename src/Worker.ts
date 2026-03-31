@@ -1,7 +1,7 @@
 import { Redis } from 'ioredis';
 import { EventEmitter } from 'events';
 import { Job, JobOptions, hydrateJob, JobStatus, WorkerOptions } from './types';
-import { jobKey, waitingKey, delayedKey, activeKey, failedKey, completedKey, channelKey, limiterKey, latencyKey } from './keys';
+import { jobKey, waitingKey, delayedKey, activeKey, failedKey, completedKey, channelKey, limiterKey, latencyKey, pauseKey } from './keys';
 
 /**
  * Worker class to process jobs from one or more queues.
@@ -135,6 +135,13 @@ export class Worker<T = any> extends EventEmitter {
             const ak = activeKey(qName);
             const lk = limiterKey(qName);
             const jkPrefix = `queue:${qName}:jobs:`;
+
+            // Phase 37: Skip this queue if it is paused
+            const paused = await this.redis.get(pauseKey(qName));
+            if (paused === '1') {
+                this.log(`⏸️  Queue '${qName}' is paused — skipping poll.`, qName);
+                continue;
+            }
 
             const limitMax = this.options.rateLimit?.max || 0;
             const limitDuration = this.options.rateLimit?.durationMs || 0;

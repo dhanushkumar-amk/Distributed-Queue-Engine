@@ -61,3 +61,8 @@ export function cronKey(queueName: string): string {
 export function latencyKey(queueName: string): string {
   return `${PREFIX}:${queueName}:latency`;
 }
+
+// Simple string key. Exists = queue is paused. Workers skip polling when set.
+export function pauseKey(queueName: string): string {
+  return `${PREFIX}:${queueName}:paused`;
+}
