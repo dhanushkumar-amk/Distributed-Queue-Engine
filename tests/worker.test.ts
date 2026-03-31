@@ -16,6 +16,7 @@ import { Queue } from '../src/Queue';
 import { Worker } from '../src/Worker';
 import { loadScripts } from '../src/scripts';
 import { Job } from '../src/types';
+import { GenericContainer, StartedTestContainer } from 'testcontainers';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -62,16 +63,25 @@ async function withWorker<T>(
 
 // ─── Shared setup ─────────────────────────────────────────────────────────────
 
+let redisContainer: StartedTestContainer;
 let redis: Redis;
 let queue: Queue;
 
 beforeAll(async () => {
-  redis = new Redis({ host: 'localhost', port: 6379, lazyConnect: false, db: 1 });
+  redisContainer = await new GenericContainer("redis:7-alpine")
+    .withExposedPorts(6379)
+    .start();
+    
+  const host = redisContainer.getHost();
+  const port = redisContainer.getMappedPort(6379);
+
+  redis = new Redis({ host, port, lazyConnect: false, db: 1 });
   await loadScripts(redis);
-});
+}, 60000);
 
 afterAll(async () => {
   await redis.quit();
+  await redisContainer.stop();
 });
 
 beforeEach(async () => {

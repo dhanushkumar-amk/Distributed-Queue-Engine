@@ -29,9 +29,16 @@ function assert(condition: boolean, label: string) {
   }
 }
 
+import { GenericContainer } from 'testcontainers';
+
 async function main() {
   console.log('\n🔑 Phase 42 — Idempotency Keys Test\n');
 
+  const container = await new GenericContainer("redis:7-alpine")
+    .withExposedPorts(6379)
+    .start();
+    
+  const REDIS_URL = `redis://${container.getHost()}:${container.getMappedPort(6379)}`;
   const redis = new Redis(REDIS_URL);
   await loadScripts(redis);
 
@@ -106,6 +113,7 @@ async function main() {
   const keys = await redis.keys(`queue:${QUEUE}:*`);
   if (keys.length > 0) await redis.del(...keys);
   await redis.quit();
+  await container.stop();
 
   process.exit(failed > 0 ? 1 : 0);
 }

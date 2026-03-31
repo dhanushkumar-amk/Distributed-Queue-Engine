@@ -15,22 +15,32 @@
 import Redis from 'ioredis';
 import { Queue } from '../src/Queue';
 import { loadScripts } from '../src/scripts';
+import { GenericContainer, StartedTestContainer } from 'testcontainers';
 
 // ─── Test helpers ─────────────────────────────────────────────────────────────
 
 const TEST_QUEUE = 'test-queue-unit';
 
+let redisContainer: StartedTestContainer;
 let redis: Redis;
 let queue: Queue;
 
 // Shared setup: one Redis client for all tests
 beforeAll(async () => {
-  redis = new Redis({ host: 'localhost', port: 6379, lazyConnect: false, db: 1 });
+  redisContainer = await new GenericContainer("redis:7-alpine")
+    .withExposedPorts(6379)
+    .start();
+    
+  const host = redisContainer.getHost();
+  const port = redisContainer.getMappedPort(6379);
+
+  redis = new Redis({ host, port, lazyConnect: false, db: 1 });
   await loadScripts(redis);
-});
+}, 60000);
 
 afterAll(async () => {
   await redis.quit();
+  await redisContainer.stop();
 });
 
 // Wipe DB 1 before every test to guarantee isolation

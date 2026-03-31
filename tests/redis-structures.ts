@@ -1,7 +1,12 @@
-import redis from "../src/redis";
+import { GenericContainer } from 'testcontainers';
 
 async function exerciseRedisStructures() {
   console.log("--- Redis Structure Deep Dive ---");
+
+  const container = await new GenericContainer("redis:7-alpine").withExposedPorts(6379).start();
+  process.env.REDIS_URL = `redis://${container.getHost()}:${container.getMappedPort(6379)}`;
+
+  const { default: redis } = await import("../src/redis");
 
   try {
     // 1. Strings (Simple Key-Value)
@@ -52,6 +57,8 @@ async function exerciseRedisStructures() {
     console.error("Structure exercise failed:", err);
   } finally {
     console.log("\n--- Exercise Finished ---");
+    await redis.quit();
+    await container.stop();
     process.exit(0);
   }
 }

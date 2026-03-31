@@ -1,7 +1,14 @@
-import redis from "../src/redis";
+import { GenericContainer } from 'testcontainers';
+import { REDIS_URL as defaultUrl } from '../src/config';
 
 async function testRedis() {
   console.log("--- Redis Test Starting ---");
+  
+  const container = await new GenericContainer("redis:7-alpine").withExposedPorts(6379).start();
+  process.env.REDIS_URL = `redis://${container.getHost()}:${container.getMappedPort(6379)}`;
+  
+  // Dynamically import to ensure it picks up the new REDIS_URL environment variable
+  const { default: redis } = await import("../src/redis");
   
   try {
     // 1. Set a key
@@ -34,6 +41,8 @@ async function testRedis() {
     console.error("Test failed with error:", err);
   } finally {
     console.log("--- Redis Test Finished ---");
+    await redis.quit();
+    await container.stop();
     process.exit(0);
   }
 }
