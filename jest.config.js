@@ -7,22 +7,16 @@ module.exports = {
   clearMocks: true,
   detectOpenHandles: true,
   testTimeout: 30000,
+  // uuid v13+ ships only ESM in dist-node — allow ts-jest to transform it
+  transformIgnorePatterns: ['node_modules/(?!(uuid)/)'],
   transform: {
     '^.+\\.tsx?$': [
       'ts-jest',
       {
-        // Inline tsconfig override — widens rootDir so tests/ is included
-        tsconfig: {
-          rootDir: '.',
-          outDir: './dist',
-          target: 'ES2020',
-          module: 'CommonJS',
-          strict: true,
-          esModuleInterop: true,
-          skipLibCheck: true,
-          forceConsistentCasingInFileNames: true,
-        },
+        tsconfig: 'tsconfig.test.json',
       },
     ],
+    // Transform uuid's ESM through babel-jest (fallback to jest's babel)
+    '^.+\\.m?js$': ['babel-jest', { presets: [['@babel/preset-env', { targets: { node: 'current' } }]] }],
   },
 };

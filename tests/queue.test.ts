@@ -149,7 +149,9 @@ describe('Queue.getMetrics()', () => {
 
 describe('Queue.clearCompleted()', () => {
   it('should return 0 when there is nothing to clear', async () => {
-    const removed = await queue.clearCompleted({ maxAgeMs: 0, maxCount: 1000 });
+    // clearCompleted takes maxAgeMs: number (default 1h)
+    // Passing 0 means "anything older than now" — empty queue = 0 removed
+    const removed = await queue.clearCompleted(0);
     expect(removed).toBe(0);
   });
 });

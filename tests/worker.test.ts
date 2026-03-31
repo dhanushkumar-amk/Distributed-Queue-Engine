@@ -151,8 +151,8 @@ describe('Worker: successful processing', () => {
 
 describe('Worker: failure handling', () => {
   it('should move job to failed after maxAttempts exhausted', async () => {
-    // maxAttempts=1 → fails immediately with no retry
-    await queue.add('always-fail', { reason: 'boom' }, { maxAttempts: 1 });
+    // attempts:1 → fails immediately with no retry
+    await queue.add('always-fail', { reason: 'boom' }, { attempts: 1 });
 
     await withWorker(queue, redis, async (_job) => {
       throw new Error('Intentional failure for testing');
@@ -169,7 +169,7 @@ describe('Worker: failure handling', () => {
   });
 
   it('should keep job in failed (not waiting) when maxAttempts=1', async () => {
-    const job = await queue.add('fail-no-retry', {}, { maxAttempts: 1 });
+    const job = await queue.add('fail-no-retry', {}, { attempts: 1 });
 
     await withWorker(queue, redis, async () => {
       throw new Error('fail');
@@ -187,7 +187,7 @@ describe('Worker: failure handling', () => {
 
   it('should process 10 failing jobs and all appear in failed', async () => {
     for (let i = 0; i < 10; i++) {
-      await queue.add('fail-all', { i }, { maxAttempts: 1 });
+      await queue.add('fail-all', { i }, { attempts: 1 });
     }
 
     await withWorker(queue, redis, async () => {
@@ -207,7 +207,7 @@ describe('Worker: failure handling', () => {
 
 describe('Worker: retry logic', () => {
   it('should retry and eventually succeed on second attempt', async () => {
-    await queue.add('flaky', {}, { maxAttempts: 3, backoff: { type: 'fixed', delay: 100 } });
+    await queue.add('flaky', {}, { attempts: 3, backoff: { type: 'fixed', delay: 100 } });
 
     let attempt = 0;
     await withWorker(queue, redis, async (_job) => {
@@ -230,7 +230,7 @@ describe('Worker: retry logic', () => {
   it('retryAll should re-queue all failed jobs', async () => {
     // Fail 3 jobs with maxAttempts=1
     for (let i = 0; i < 3; i++) {
-      await queue.add('batch-fail', { i }, { maxAttempts: 1 });
+      await queue.add('batch-fail', { i }, { attempts: 1 });
     }
 
     // Worker 1: fail all 3
