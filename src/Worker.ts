@@ -33,6 +33,9 @@ export class Worker<T = any> extends EventEmitter {
   private workerStatusTimer?: NodeJS.Timeout;
   private readonly STATUS_TTL = 45; // seconds — key expires if no heartbeat
 
+  /** Default drain timeout for graceful shutdown (30 s) */
+  static readonly DEFAULT_SHUTDOWN_TIMEOUT_MS = 30_000;
+
   constructor(
     queueNames: string | string[], 
     processor: (job: Job<T>) => Promise<void>, 
@@ -97,11 +100,18 @@ export class Worker<T = any> extends EventEmitter {
   }
 
   /**
-   * Graceful shutdown: wait for active jobs to finish before stopping.
+  /**
+   * Graceful shutdown.
+   * Stops polling, waits up to `timeoutMs` for active jobs to drain.
+   * If they don't finish in time, emits 'drain_timeout' and resolves anyway
+   * (the caller decides whether to force-exit).
+   *
+   * @param timeoutMs  Max ms to wait for active jobs. Default: 30 000 (30 s)
+   * @returns          true = clean drain, false = timed out
    */
-  async stop(): Promise<void> {
+  async stop(timeoutMs: number = Worker.DEFAULT_SHUTDOWN_TIMEOUT_MS): Promise<boolean> {
     this.running = false;
-    this.log("🛑 Stopping worker gracefully...");
+    this.log(`🛑 Stopping worker gracefully (timeout: ${timeoutMs / 1000}s)…`);
 
     if (this.heartbeatTimer) {
       clearInterval(this.heartbeatTimer);
@@ -120,11 +130,37 @@ export class Worker<T = any> extends EventEmitter {
       this.subRedis = undefined;
     }
 
-    // Wait for active jobs to drain
-    while (this.activeJobsCount > 0) {
-      await new Promise(resolve => setTimeout(resolve, 100));
+    // Race: drain active jobs vs. hard timeout
+    const drainLoop = async () => {
+      while (this.activeJobsCount > 0) {
+        this.log(`⏳ Waiting for ${this.activeJobsCount} active job(s) to finish…`);
+        await new Promise(resolve => setTimeout(resolve, 500));
+      }
+    };
+
+    const timeoutPromise = new Promise<void>(resolve =>
+      setTimeout(resolve, timeoutMs)
+    );
+
+    let timedOut = false;
+    await Promise.race([
+      drainLoop(),
+      timeoutPromise.then(() => { timedOut = true; }),
+    ]);
+
+    if (timedOut) {
+      this.log(`⚠️  Drain timeout reached (${timeoutMs / 1000}s). ${this.activeJobsCount} job(s) still active — forcing stop.`);
+      this.emit('drain_timeout', this.activeJobsCount);
+      return false; // caller should force-exit
     }
-    this.log("✅ Worker stopped.");
+
+    this.log('✅ Worker stopped cleanly.');
+    return true; // clean drain
+  }
+
+  /** Returns the number of jobs currently being processed by this worker. */
+  getActiveCount(): number {
+    return this.activeJobsCount;
   }
 
   /**

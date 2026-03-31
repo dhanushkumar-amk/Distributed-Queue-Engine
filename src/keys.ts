@@ -76,3 +76,9 @@ export function workerKey(queueName: string, pid: number): string {
 
 // Glob pattern to SCAN for all worker keys across all queues.
 export const WORKER_KEY_PATTERN = `${PREFIX}:*:workers:*`;
+
+// Idempotency deduplication key. A simple Redis string (SET NX EX 86400).
+// Stores the jobId that was originally created for this idempotency key.
+export function idempotencyKey(queueName: string, key: string): string {
+  return `${PREFIX}:${queueName}:idem:${key}`;
+}

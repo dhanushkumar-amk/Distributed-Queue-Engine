@@ -2,7 +2,7 @@ import { Redis } from 'ioredis';
 import { EventEmitter } from 'events';
 import { generateJobId } from './utils';
 import { createJob, hydrateJob, Job, JobOptions, JobStatus, QueueMetrics, CleanupOptions, RepeatableJobDef } from './types';
-import { jobKey, waitingKey, delayedKey, activeKey, channelKey, completedKey, failedKey, cancelledKey, cronKey, latencyKey, pauseKey } from './keys';
+import { jobKey, waitingKey, delayedKey, activeKey, channelKey, completedKey, failedKey, cancelledKey, cronKey, latencyKey, pauseKey, idempotencyKey } from './keys';
 import { CronExpressionParser } from 'cron-parser';
 
 /**
@@ -27,22 +27,36 @@ export class Queue<T = any> extends EventEmitter {
   async add(name: string, data: T, options: JobOptions = {}): Promise<Job<T>> {
     const id = generateJobId();
     const job = createJob(id, name, this.queueName, data, options);
-    
-    const jk = jobKey(this.queueName, job.id);
-    const wk = waitingKey(this.queueName);
-    const dk = delayedKey(this.queueName);
-    const chk = channelKey(this.queueName);
 
-    // Map priority string to numeric score (1 is highest priority)
+    const jk  = jobKey(this.queueName, job.id);
+    const wk  = waitingKey(this.queueName);
+    const dk  = delayedKey(this.queueName);
+    const chk = channelKey(this.queueName);
+    // KEYS[5]: idempotency slot — empty string means "no dedup check"
+    const ik  = options.idempotencyKey
+      ? idempotencyKey(this.queueName, options.idempotencyKey)
+      : '';
+
+    // Map priority string to numeric score (lower = higher priority)
     const priorityMap: Record<string, number> = { high: 1, normal: 5, low: 10 };
     const priorityScore = priorityMap[job.priority] || 5;
 
-    // Call the updated enqueue Lua script
-    // ARGV[1]: jobId, ARGV[2]: data, ARGV[3]: runAt, ARGV[4]: maxAttempts, ARGV[5]: priorityScore, ARGV[6]: now
-    await (this.redis as any).enqueue(
-        4, jk, wk, dk, chk, 
-        job.id, JSON.stringify(job), job.runAt, job.maxAttempts, priorityScore, Date.now()
-    );
+    // enqueue Lua returns:
+    //   ARGV[1] (new jobId)  → fresh job was created
+    //   existing jobId       → duplicate detected, returned the original
+    const returnedId = await (this.redis as any).enqueue(
+      5, jk, wk, dk, chk, ik,
+      job.id, JSON.stringify(job), job.runAt, job.maxAttempts, priorityScore, Date.now()
+    ) as string;
+
+    // Duplicate: Lua returned a *different* id — fetch & return the original job
+    if (returnedId && returnedId !== job.id) {
+      const existingJob = await this.getJob(returnedId as string);
+      if (existingJob) {
+        this.emit('deduplicated', existingJob);
+        return existingJob;
+      }
+    }
 
     this.emit('waiting', job);
     return job;

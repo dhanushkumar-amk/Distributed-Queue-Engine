@@ -14,7 +14,10 @@
     "build": "tsc",
     "test": "jest",
     "test:redis": "ts-node tests/redis-test.ts",
-    "test:structures": "ts-node tests/redis-structures.ts"
+    "test:structures": "ts-node tests/redis-structures.ts",
+    "load-test": "ts-node -r dotenv/config scripts/loadTest.ts",
+    "test:idempotency": "ts-node -r dotenv/config tests/idempotency.test.ts",
+    "test:graceful-shutdown": "ts-node -r dotenv/config tests/gracefulShutdown.test.ts"
   },
   "repository": {
     "type": "git",

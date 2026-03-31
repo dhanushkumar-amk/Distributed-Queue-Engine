@@ -8,6 +8,7 @@ import { Queue } from './Queue';
 import { Worker } from './Worker';
 import { Scheduler } from './Scheduler';
 import { createQueueRouter } from './api';
+import { registerShutdownHandlers } from './shutdown';
 
 const PORT = process.env.PORT ? parseInt(process.env.PORT) : 3000;
 
@@ -129,16 +130,14 @@ async function main() {
     console.log(`   Queues:  http://localhost:${PORT}/api/queues`);
   });
 
-  // Graceful shutdown
-  process.on('SIGINT', async () => {
-    console.log('\n🛑 Shutting down...');
-    scheduler.stop();
-    await emailWorker.stop();
-    await multiWorker.stop();
-    Object.values(queues).forEach(q => { q.stopCleanup(); q.stopWatchdog(); });
-    subRedis.disconnect();
-    redis.disconnect();
-    process.exit(0);
+  // ── Graceful shutdown (SIGTERM + SIGINT) ──────────────────────────────────
+  registerShutdownHandlers({
+    workers:      [emailWorker, multiWorker],
+    queues:       Object.values(queues),
+    redisClients: [redis, subRedis],
+    httpServer,
+    scheduler,
+    drainTimeoutMs: 30_000,
   });
 }
 

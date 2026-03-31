@@ -26,6 +26,8 @@ export interface JobOptions {
     type: BackoffType;
     delay: number;
   };
+  /** If provided, duplicate calls with the same key within 24h return the original job. */
+  idempotencyKey?: string;
 }
 
 export interface Job<T = any> {

@@ -25,9 +25,10 @@ if attempts + 1 < maxAttempts then
     redis.call("ZADD", KEYS[3], ARGV[4], ARGV[1])
     return 0 -- Indicates retry scheduled
 else
-    -- FAILURE PATH (Max attempts reached)
+    -- FAILURE PATH (Max attempts reached) — still increment attempts counter
     redis.call("HSET", KEYS[1], 
         "status", "FAILED", 
+        "attempts", attempts + 1,
         "failedAt", ARGV[3],
         "error", ARGV[2]
     )

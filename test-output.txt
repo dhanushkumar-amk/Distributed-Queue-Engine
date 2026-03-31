@@ -59,12 +59,12 @@
       at Worker.log (src/Worker.ts:77:13)
 
   console.log
-    [Worker:test-worker-unit] ­ƒÜÇ Processing job [test-worker-unit]: ping (ID: 1774960388283-adedc341-f8bc-46cf-9768-43019f9271c0)
+    [Worker:test-worker-unit] ­ƒÜÇ Processing job [test-worker-unit]: ping (ID: 1774960524237-de6217d8-56d2-48ef-9ecc-523cf54b00e1)
 
       at Worker.log (src/Worker.ts:77:13)
 
   console.log
-    [Worker:test-worker-unit] Ô£à Job completed: 1774960388283-adedc341-f8bc-46cf-9768-43019f9271c0 (10ms)
+    [Worker:test-worker-unit] Ô£à Job completed: 1774960524237-de6217d8-56d2-48ef-9ecc-523cf54b00e1 (10ms)
 
       at Worker.log (src/Worker.ts:77:13)
 
@@ -89,132 +89,102 @@
       at Worker.log (src/Worker.ts:77:13)
 
   console.log
-    [Worker:test-worker-unit] ­ƒÜÇ Processing job [test-worker-unit]: task (ID: 1774960388521-4208f463-79aa-4273-91ff-87de15ecf2de)
+    [Worker:test-worker-unit] ­ƒÜÇ Processing job [test-worker-unit]: task (ID: 1774960524484-7d8396ac-7878-459d-a478-c05b37823363)
 
       at Worker.log (src/Worker.ts:77:13)
 
   console.log
-    [Worker:test-worker-unit] Ô£à Job completed: 1774960388521-4208f463-79aa-4273-91ff-87de15ecf2de (5ms)
+    [Worker:test-worker-unit] Ô£à Job completed: 1774960524484-7d8396ac-7878-459d-a478-c05b37823363 (7ms)
 
       at Worker.log (src/Worker.ts:77:13)
 
   console.log
-    [Worker:test-worker-unit] ­ƒÜÇ Processing job [test-worker-unit]: task (ID: 1774960388526-67a9c776-fa07-4b87-808c-d3b3acb30ce2)
+    [Worker:test-worker-unit] ­ƒÜÇ Processing job [test-worker-unit]: task (ID: 1774960524486-97c562a6-7057-4abe-99d3-014cb1f5cf65)
 
       at Worker.log (src/Worker.ts:77:13)
 
   console.log
-    [Worker:test-worker-unit] Ô£à Job completed: 1774960388526-67a9c776-fa07-4b87-808c-d3b3acb30ce2 (4ms)
+    [Worker:test-worker-unit] Ô£à Job completed: 1774960524486-97c562a6-7057-4abe-99d3-014cb1f5cf65 (7ms)
 
       at Worker.log (src/Worker.ts:77:13)
 
   console.log
-    [Worker:test-worker-unit] ­ƒÜÇ Processing job [test-worker-unit]: task (ID: 1774960388528-0f52c7fd-d1c8-4576-bd37-fba75d2525b3)
+    [Worker:test-worker-unit] ­ƒÜÇ Processing job [test-worker-unit]: task (ID: 1774960524488-11c28230-909c-405a-bf29-c13c2283cf9a)
 
       at Worker.log (src/Worker.ts:77:13)
 
   console.log
-    [Worker:test-worker-unit] Ô£à Job completed: 1774960388528-0f52c7fd-d1c8-4576-bd37-fba75d2525b3 (4ms)
+    [Worker:test-worker-unit] Ô£à Job completed: 1774960524488-11c28230-909c-405a-bf29-c13c2283cf9a (4ms)
 
       at Worker.log (src/Worker.ts:77:13)
 
   console.log
-    [Worker:test-worker-unit] ­ƒÜÇ Processing job [test-worker-unit]: task (ID: 1774960388533-8d14884e-d814-4414-84f2-e8f3ca50af06)
+    [Worker:test-worker-unit] ­ƒÜÇ Processing job [test-worker-unit]: task (ID: 1774960524490-90756c07-0ffb-46cf-b607-ca5bc1602a9a)
 
       at Worker.log (src/Worker.ts:77:13)
 
   console.log
-    [Worker:test-worker-unit] Ô£à Job completed: 1774960388533-8d14884e-d814-4414-84f2-e8f3ca50af06 (4ms)
+    [Worker:test-worker-unit] Ô£à Job completed: 1774960524490-90756c07-0ffb-46cf-b607-ca5bc1602a9a (6ms)
 
       at Worker.log (src/Worker.ts:77:13)
 
   console.log
-    [Worker:test-worker-unit] ­ƒÜÇ Processing job [test-worker-unit]: task (ID: 1774960388536-d872aef9-b705-4bab-b638-fdc20eee2bee)
+    [Worker:test-worker-unit] ­ƒÜÇ Processing job [test-worker-unit]: task (ID: 1774960524495-67c35aba-833c-49c0-901d-8ed52376ec41)
 
       at Worker.log (src/Worker.ts:77:13)
 
   console.log
-    [Worker:test-worker-unit] Ô£à Job completed: 1774960388536-d872aef9-b705-4bab-b638-fdc20eee2bee (4ms)
+    [Worker:test-worker-unit] Ô£à Job completed: 1774960524495-67c35aba-833c-49c0-901d-8ed52376ec41 (5ms)
 
       at Worker.log (src/Worker.ts:77:13)
 
   console.log
-    [Worker:test-worker-unit] ­ƒÜÇ Processing job [test-worker-unit]: task (ID: 1774960388539-f4f90627-789d-45a9-9339-2f50d0f71330)
+    [Worker:test-worker-unit] ­ƒÜÇ Processing job [test-worker-unit]: task (ID: 1774960524500-c04e1ce7-c86c-4c11-b346-a0c2474fab9f)
 
       at Worker.log (src/Worker.ts:77:13)
 
   console.log
-    [Worker:test-worker-unit] Ô£à Job completed: 1774960388539-f4f90627-789d-45a9-9339-2f50d0f71330 (4ms)
+    [Worker:test-worker-unit] Ô£à Job completed: 1774960524500-c04e1ce7-c86c-4c11-b346-a0c2474fab9f (4ms)
 
       at Worker.log (src/Worker.ts:77:13)
 
   console.log
-    [Worker:test-worker-unit] ­ƒÜÇ Processing job [test-worker-unit]: task (ID: 1774960388552-9243921b-418c-4dbf-b493-10c5f3894dc9)
+    [Worker:test-worker-unit] ­ƒÜÇ Processing job [test-worker-unit]: task (ID: 1774960524501-cb625736-e48d-4976-9051-f24983ead99a)
 
       at Worker.log (src/Worker.ts:77:13)
 
   console.log
-    [Worker:test-worker-unit] Ô£à Job completed: 1774960388552-9243921b-418c-4dbf-b493-10c5f3894dc9 (4ms)
+    [Worker:test-worker-unit] Ô£à Job completed: 1774960524501-cb625736-e48d-4976-9051-f24983ead99a (7ms)
 
       at Worker.log (src/Worker.ts:77:13)
 
   console.log
-    [Worker:test-worker-unit] ­ƒÜÇ Processing job [test-worker-unit]: task (ID: 1774960388555-9a1f0b62-39d5-45b9-b6ad-9102a79dde5f)
+    [Worker:test-worker-unit] ­ƒÜÇ Processing job [test-worker-unit]: task (ID: 1774960524505-7264a47e-6850-4b35-a323-00f72a60c879)
 
       at Worker.log (src/Worker.ts:77:13)
 
   console.log
-    [Worker:test-worker-unit] Ô£à Job completed: 1774960388555-9a1f0b62-39d5-45b9-b6ad-9102a79dde5f (3ms)
+    [Worker:test-worker-unit] Ô£à Job completed: 1774960524505-7264a47e-6850-4b35-a323-00f72a60c879 (5ms)
 
       at Worker.log (src/Worker.ts:77:13)
 
   console.log
-    [Worker:test-worker-unit] ­ƒÜÇ Processing job [test-worker-unit]: task (ID: 1774960388557-c8a117fe-77da-453f-bf3c-4bc063cd8667)
+    [Worker:test-worker-unit] ­ƒÜÇ Processing job [test-worker-unit]: task (ID: 1774960524508-108f6030-9e07-4e9f-bd01-cbbe274fe6d1)
 
       at Worker.log (src/Worker.ts:77:13)
 
   console.log
-    [Worker:test-worker-unit] Ô£à Job completed: 1774960388557-c8a117fe-77da-453f-bf3c-4bc063cd8667 (3ms)
+    [Worker:test-worker-unit] Ô£à Job completed: 1774960524508-108f6030-9e07-4e9f-bd01-cbbe274fe6d1 (8ms)
 
       at Worker.log (src/Worker.ts:77:13)
 
   console.log
-    [Worker:test-worker-unit] ­ƒÜÇ Processing job [test-worker-unit]: task (ID: 1774960388559-caed473c-9c3d-4e96-880a-8a7949d60637)
+    [Worker:test-worker-unit] ­ƒÜÇ Processing job [test-worker-unit]: task (ID: 1774960524510-6b68674c-ad48-4d72-8d30-34a1faa5b28a)
 
       at Worker.log (src/Worker.ts:77:13)
 
   console.log
-    [Worker:test-worker-unit] Ô£à Job completed: 1774960388559-caed473c-9c3d-4e96-880a-8a7949d60637 (3ms)
-
-      at Worker.log (src/Worker.ts:77:13)
-
-  console.log
-    [Worker:test-worker-unit] ­ƒøæ Stopping worker gracefully...
-
-      at Worker.log (src/Worker.ts:77:13)
-
-  console.log
-    [Worker:test-worker-unit] Ô£à Worker stopped.
-
-      at Worker.log (src/Worker.ts:77:13)
-
-  console.log
-    [Worker:test-worker-unit] ­ƒæÀ Worker started (concurrency: 1)
-
-      at Worker.log (src/Worker.ts:77:13)
-
-  console.log
-    [Worker:test-worker-unit] ­ƒôí Subscribed to cancellation events on: queue:test-worker-unit:events
-
-      at Worker.log (src/Worker.ts:77:13)
-
-  console.log
-    [Worker:test-worker-unit] ­ƒÜÇ Processing job [test-worker-unit]: count-me (ID: 1774960388735-364c36f5-90f5-4830-a648-6a3f9586f34d)
-
-      at Worker.log (src/Worker.ts:77:13)
-
-  console.log
-    [Worker:test-worker-unit] Ô£à Job completed: 1774960388735-364c36f5-90f5-4830-a648-6a3f9586f34d (10ms)
+    [Worker:test-worker-unit] Ô£à Job completed: 1774960524510-6b68674c-ad48-4d72-8d30-34a1faa5b28a (4ms)
 
       at Worker.log (src/Worker.ts:77:13)
 
@@ -239,12 +209,12 @@
       at Worker.log (src/Worker.ts:77:13)
 
   console.log
-    [Worker:test-worker-unit] ­ƒÜÇ Processing job [test-worker-unit]: always-fail (ID: 1774960388879-21148459-d34e-4c02-9d54-0bf31601ad4b)
+    [Worker:test-worker-unit] ­ƒÜÇ Processing job [test-worker-unit]: count-me (ID: 1774960524792-2f282456-d974-4faa-b82c-81adedb15c2a)
 
       at Worker.log (src/Worker.ts:77:13)
 
   console.log
-    [Worker:test-worker-unit] ÔØî Job failed: 1774960388879-21148459-d34e-4c02-9d54-0bf31601ad4b - Intentional failure for testing
+    [Worker:test-worker-unit] Ô£à Job completed: 1774960524792-2f282456-d974-4faa-b82c-81adedb15c2a (68ms)
 
       at Worker.log (src/Worker.ts:77:13)
 
@@ -269,12 +239,42 @@
       at Worker.log (src/Worker.ts:77:13)
 
   console.log
-    [Worker:test-worker-unit] ­ƒÜÇ Processing job [test-worker-unit]: fail-no-retry (ID: 1774960389021-2ee71c1b-6195-43bb-9caa-c0ff2ca24ad2)
+    [Worker:test-worker-unit] ­ƒÜÇ Processing job [test-worker-unit]: always-fail (ID: 1774960525018-ef614516-2c53-4729-9865-ddbc7a8ac81a)
 
       at Worker.log (src/Worker.ts:77:13)
 
   console.log
-    [Worker:test-worker-unit] ÔØî Job failed: 1774960389021-2ee71c1b-6195-43bb-9caa-c0ff2ca24ad2 - fail
+    [Worker:test-worker-unit] ÔØî Job failed: 1774960525018-ef614516-2c53-4729-9865-ddbc7a8ac81a - Intentional failure for testing
+
+      at Worker.log (src/Worker.ts:77:13)
+
+  console.log
+    [Worker:test-worker-unit] ­ƒøæ Stopping worker gracefully...
+
+      at Worker.log (src/Worker.ts:77:13)
+
+  console.log
+    [Worker:test-worker-unit] Ô£à Worker stopped.
+
+      at Worker.log (src/Worker.ts:77:13)
+
+  console.log
+    [Worker:test-worker-unit] ­ƒæÀ Worker started (concurrency: 1)
+
+      at Worker.log (src/Worker.ts:77:13)
+
+  console.log
+    [Worker:test-worker-unit] ­ƒôí Subscribed to cancellation events on: queue:test-worker-unit:events
+
+      at Worker.log (src/Worker.ts:77:13)
+
+  console.log
+    [Worker:test-worker-unit] ­ƒÜÇ Processing job [test-worker-unit]: fail-no-retry (ID: 1774960525264-18c29d39-9035-41f2-81d0-7b5257d4d9a3)
+
+      at Worker.log (src/Worker.ts:77:13)
+
+  console.log
+    [Worker:test-worker-unit] ÔØî Job failed: 1774960525264-18c29d39-9035-41f2-81d0-7b5257d4d9a3 - fail
 
       at Worker.log (src/Worker.ts:77:13)
 
@@ -299,142 +299,102 @@
       at Worker.log (src/Worker.ts:77:13)
 
   console.log
-    [Worker:test-worker-unit] ­ƒÜÇ Processing job [test-worker-unit]: fail-all (ID: 1774960389170-a04f7114-a3b1-487f-b306-4eb0d4e574da)
+    [Worker:test-worker-unit] ­ƒÜÇ Processing job [test-worker-unit]: fail-all (ID: 1774960525858-5502c9cb-bc7c-4000-b809-0be50cdb3ed2)
 
       at Worker.log (src/Worker.ts:77:13)
 
   console.log
-    [Worker:test-worker-unit] ÔØî Job failed: 1774960389170-a04f7114-a3b1-487f-b306-4eb0d4e574da - always fail
+    [Worker:test-worker-unit] ÔØî Job failed: 1774960525858-5502c9cb-bc7c-4000-b809-0be50cdb3ed2 - always fail
 
       at Worker.log (src/Worker.ts:77:13)
 
   console.log
-    [Worker:test-worker-unit] ­ƒÜÇ Processing job [test-worker-unit]: fail-all (ID: 1774960389171-ebb35d18-7efe-483e-9bc9-260118ba54a4)
+    [Worker:test-worker-unit] ­ƒÜÇ Processing job [test-worker-unit]: fail-all (ID: 1774960525863-0feb2cda-3eed-4278-bccd-d645425a0bc5)
 
       at Worker.log (src/Worker.ts:77:13)
 
   console.log
-    [Worker:test-worker-unit] ÔØî Job failed: 1774960389171-ebb35d18-7efe-483e-9bc9-260118ba54a4 - always fail
+    [Worker:test-worker-unit] ÔØî Job failed: 1774960525863-0feb2cda-3eed-4278-bccd-d645425a0bc5 - always fail
 
       at Worker.log (src/Worker.ts:77:13)
 
   console.log
-    [Worker:test-worker-unit] ­ƒÜÇ Processing job [test-worker-unit]: fail-all (ID: 1774960389173-277d63ad-1b17-4be1-b15f-512befb414da)
+    [Worker:test-worker-unit] ­ƒÜÇ Processing job [test-worker-unit]: fail-all (ID: 1774960525865-bb953508-5927-47ab-8376-7df266c4425f)
 
       at Worker.log (src/Worker.ts:77:13)
 
   console.log
-    [Worker:test-worker-unit] ÔØî Job failed: 1774960389173-277d63ad-1b17-4be1-b15f-512befb414da - always fail
+    [Worker:test-worker-unit] ÔØî Job failed: 1774960525865-bb953508-5927-47ab-8376-7df266c4425f - always fail
 
       at Worker.log (src/Worker.ts:77:13)
 
   console.log
-    [Worker:test-worker-unit] ­ƒÜÇ Processing job [test-worker-unit]: fail-all (ID: 1774960389174-2f068912-7c22-433a-910b-ab20a0f6e243)
+    [Worker:test-worker-unit] ­ƒÜÇ Processing job [test-worker-unit]: fail-all (ID: 1774960525867-deca20dc-e138-454d-bc38-c062dcac80c1)
 
       at Worker.log (src/Worker.ts:77:13)
 
   console.log
-    [Worker:test-worker-unit] ÔØî Job failed: 1774960389174-2f068912-7c22-433a-910b-ab20a0f6e243 - always fail
+    [Worker:test-worker-unit] ÔØî Job failed: 1774960525867-deca20dc-e138-454d-bc38-c062dcac80c1 - always fail
 
       at Worker.log (src/Worker.ts:77:13)
 
   console.log
-    [Worker:test-worker-unit] ­ƒÜÇ Processing job [test-worker-unit]: fail-all (ID: 1774960389176-bc991d8f-9a84-4ada-a94e-ca5ff27df22e)
+    [Worker:test-worker-unit] ­ƒÜÇ Processing job [test-worker-unit]: fail-all (ID: 1774960525870-daf8312f-19b6-4cde-867c-2b28b15fa3be)
 
       at Worker.log (src/Worker.ts:77:13)
 
   console.log
-    [Worker:test-worker-unit] ÔØî Job failed: 1774960389176-bc991d8f-9a84-4ada-a94e-ca5ff27df22e - always fail
+    [Worker:test-worker-unit] ÔØî Job failed: 1774960525870-daf8312f-19b6-4cde-867c-2b28b15fa3be - always fail
 
       at Worker.log (src/Worker.ts:77:13)
 
   console.log
-    [Worker:test-worker-unit] ­ƒÜÇ Processing job [test-worker-unit]: fail-all (ID: 1774960389177-f886b140-5201-404c-8507-1befd59f98c2)
+    [Worker:test-worker-unit] ­ƒÜÇ Processing job [test-worker-unit]: fail-all (ID: 1774960525871-5ee49ef6-7eb3-4a6c-915e-687cbb071cdf)
 
       at Worker.log (src/Worker.ts:77:13)
 
   console.log
-    [Worker:test-worker-unit] ÔØî Job failed: 1774960389177-f886b140-5201-404c-8507-1befd59f98c2 - always fail
+    [Worker:test-worker-unit] ÔØî Job failed: 1774960525871-5ee49ef6-7eb3-4a6c-915e-687cbb071cdf - always fail
 
       at Worker.log (src/Worker.ts:77:13)
 
   console.log
-    [Worker:test-worker-unit] ­ƒÜÇ Processing job [test-worker-unit]: fail-all (ID: 1774960389178-4071b3ba-2c20-4f59-880d-8c74699cb698)
+    [Worker:test-worker-unit] ­ƒÜÇ Processing job [test-worker-unit]: fail-all (ID: 1774960525873-5795d34f-e653-4997-bfd1-09d4d258b88d)
 
       at Worker.log (src/Worker.ts:77:13)
 
   console.log
-    [Worker:test-worker-unit] ÔØî Job failed: 1774960389178-4071b3ba-2c20-4f59-880d-8c74699cb698 - always fail
+    [Worker:test-worker-unit] ÔØî Job failed: 1774960525873-5795d34f-e653-4997-bfd1-09d4d258b88d - always fail
 
       at Worker.log (src/Worker.ts:77:13)
 
   console.log
-    [Worker:test-worker-unit] ­ƒÜÇ Processing job [test-worker-unit]: fail-all (ID: 1774960389180-f6ee2999-e2b5-4b4f-abeb-2e27b0f67c46)
+    [Worker:test-worker-unit] ­ƒÜÇ Processing job [test-worker-unit]: fail-all (ID: 1774960525874-313f3692-c32a-46ac-820f-7b2d218dc63a)
 
       at Worker.log (src/Worker.ts:77:13)
 
   console.log
-    [Worker:test-worker-unit] ÔØî Job failed: 1774960389180-f6ee2999-e2b5-4b4f-abeb-2e27b0f67c46 - always fail
+    [Worker:test-worker-unit] ÔØî Job failed: 1774960525874-313f3692-c32a-46ac-820f-7b2d218dc63a - always fail
 
       at Worker.log (src/Worker.ts:77:13)
 
   console.log
-    [Worker:test-worker-unit] ­ƒÜÇ Processing job [test-worker-unit]: fail-all (ID: 1774960389181-cb7d33c0-35ea-46b8-b8af-4b723bea8d51)
+    [Worker:test-worker-unit] ­ƒÜÇ Processing job [test-worker-unit]: fail-all (ID: 1774960525876-53d156b3-3f45-41d3-9c9b-5c1ef346df21)
 
       at Worker.log (src/Worker.ts:77:13)
 
   console.log
-    [Worker:test-worker-unit] ÔØî Job failed: 1774960389181-cb7d33c0-35ea-46b8-b8af-4b723bea8d51 - always fail
+    [Worker:test-worker-unit] ÔØî Job failed: 1774960525876-53d156b3-3f45-41d3-9c9b-5c1ef346df21 - always fail
 
       at Worker.log (src/Worker.ts:77:13)
 
   console.log
-    [Worker:test-worker-unit] ­ƒÜÇ Processing job [test-worker-unit]: fail-all (ID: 1774960389184-7fb0b005-22dd-437e-9c23-d23ef5abddfe)
+    [Worker:test-worker-unit] ­ƒÜÇ Processing job [test-worker-unit]: fail-all (ID: 1774960525877-05e40c27-02f2-4d40-b9b3-2afdaa68ba00)
 
       at Worker.log (src/Worker.ts:77:13)
 
   console.log
-    [Worker:test-worker-unit] ÔØî Job failed: 1774960389184-7fb0b005-22dd-437e-9c23-d23ef5abddfe - always fail
-
-      at Worker.log (src/Worker.ts:77:13)
-
-  console.log
-    [Worker:test-worker-unit] ­ƒøæ Stopping worker gracefully...
-
-      at Worker.log (src/Worker.ts:77:13)
-
-  console.log
-    [Worker:test-worker-unit] Ô£à Worker stopped.
-
-      at Worker.log (src/Worker.ts:77:13)
-
-  console.log
-    [Worker:test-worker-unit] ­ƒæÀ Worker started (concurrency: 1)
-
-      at Worker.log (src/Worker.ts:77:13)
-
-  console.log
-    [Worker:test-worker-unit] ­ƒôí Subscribed to cancellation events on: queue:test-worker-unit:events
-
-      at Worker.log (src/Worker.ts:77:13)
-
-  console.log
-    [Worker:test-worker-unit] ­ƒÜÇ Processing job [test-worker-unit]: flaky (ID: 1774960389333-d065d1d1-d6c6-482f-b244-38620a8e2e84)
-
-      at Worker.log (src/Worker.ts:77:13)
-
-  console.log
-    [Worker:test-worker-unit] ÔØî Job failed: 1774960389333-d065d1d1-d6c6-482f-b244-38620a8e2e84 - First attempt fails
-
-      at Worker.log (src/Worker.ts:77:13)
-
-  console.log
-    [Worker:test-worker-unit] ­ƒÜÇ Processing job [test-worker-unit]: flaky (ID: 1774960389333-d065d1d1-d6c6-482f-b244-38620a8e2e84)
-
-      at Worker.log (src/Worker.ts:77:13)
-
-  console.log
-    [Worker:test-worker-unit] Ô£à Job completed: 1774960389333-d065d1d1-d6c6-482f-b244-38620a8e2e84 (3ms)
+    [Worker:test-worker-unit] ÔØî Job failed: 1774960525877-05e40c27-02f2-4d40-b9b3-2afdaa68ba00 - always fail
 
       at Worker.log (src/Worker.ts:77:13)
 
@@ -459,32 +419,22 @@
       at Worker.log (src/Worker.ts:77:13)
 
   console.log
-    [Worker:test-worker-unit] ­ƒÜÇ Processing job [test-worker-unit]: batch-fail (ID: 1774960389489-fc33121e-5e51-4afa-b760-52a479521b5a)
+    [Worker:test-worker-unit] ­ƒÜÇ Processing job [test-worker-unit]: flaky (ID: 1774960526197-2c45a2f2-e730-4165-9817-6fc77cad4f9d)
 
       at Worker.log (src/Worker.ts:77:13)
 
   console.log
-    [Worker:test-worker-unit] ÔØî Job failed: 1774960389489-fc33121e-5e51-4afa-b760-52a479521b5a - fail
+    [Worker:test-worker-unit] ÔØî Job failed: 1774960526197-2c45a2f2-e730-4165-9817-6fc77cad4f9d - First attempt fails
 
       at Worker.log (src/Worker.ts:77:13)
 
   console.log
-    [Worker:test-worker-unit] ­ƒÜÇ Processing job [test-worker-unit]: batch-fail (ID: 1774960389491-c41000d0-df44-4b0e-bed7-4c995545ffbe)
+    [Worker:test-worker-unit] ­ƒÜÇ Processing job [test-worker-unit]: flaky (ID: 1774960526197-2c45a2f2-e730-4165-9817-6fc77cad4f9d)
 
       at Worker.log (src/Worker.ts:77:13)
 
   console.log
-    [Worker:test-worker-unit] ÔØî Job failed: 1774960389491-c41000d0-df44-4b0e-bed7-4c995545ffbe - fail
-
-      at Worker.log (src/Worker.ts:77:13)
-
-  console.log
-    [Worker:test-worker-unit] ­ƒÜÇ Processing job [test-worker-unit]: batch-fail (ID: 1774960389492-99d86195-cf77-459b-a685-ce8baa2c084d)
-
-      at Worker.log (src/Worker.ts:77:13)
-
-  console.log
-    [Worker:test-worker-unit] ÔØî Job failed: 1774960389492-99d86195-cf77-459b-a685-ce8baa2c084d - fail
+    [Worker:test-worker-unit] Ô£à Job completed: 1774960526197-2c45a2f2-e730-4165-9817-6fc77cad4f9d (5ms)
 
       at Worker.log (src/Worker.ts:77:13)
 
@@ -509,32 +459,82 @@
       at Worker.log (src/Worker.ts:77:13)
 
   console.log
-    [Worker:test-worker-unit] ­ƒÜÇ Processing job [test-worker-unit]: batch-fail (ID: 1774960389489-fc33121e-5e51-4afa-b760-52a479521b5a)
+    [Worker:test-worker-unit] ­ƒÜÇ Processing job [test-worker-unit]: batch-fail (ID: 1774960526385-c691b989-4e7c-4470-9278-acf2277fb3ea)
 
       at Worker.log (src/Worker.ts:77:13)
 
   console.log
-    [Worker:test-worker-unit] Ô£à Job completed: 1774960389489-fc33121e-5e51-4afa-b760-52a479521b5a (4ms)
+    [Worker:test-worker-unit] ÔØî Job failed: 1774960526385-c691b989-4e7c-4470-9278-acf2277fb3ea - fail
 
       at Worker.log (src/Worker.ts:77:13)
 
   console.log
-    [Worker:test-worker-unit] ­ƒÜÇ Processing job [test-worker-unit]: batch-fail (ID: 1774960389491-c41000d0-df44-4b0e-bed7-4c995545ffbe)
+    [Worker:test-worker-unit] ­ƒÜÇ Processing job [test-worker-unit]: batch-fail (ID: 1774960526398-5bd5e675-1360-4ad3-8faa-2ebfd4a0e446)
 
       at Worker.log (src/Worker.ts:77:13)
 
   console.log
-    [Worker:test-worker-unit] Ô£à Job completed: 1774960389491-c41000d0-df44-4b0e-bed7-4c995545ffbe (5ms)
+    [Worker:test-worker-unit] ÔØî Job failed: 1774960526398-5bd5e675-1360-4ad3-8faa-2ebfd4a0e446 - fail
 
       at Worker.log (src/Worker.ts:77:13)
 
   console.log
-    [Worker:test-worker-unit] ­ƒÜÇ Processing job [test-worker-unit]: batch-fail (ID: 1774960389492-99d86195-cf77-459b-a685-ce8baa2c084d)
+    [Worker:test-worker-unit] ­ƒÜÇ Processing job [test-worker-unit]: batch-fail (ID: 1774960526399-81c14e45-28ba-4719-b223-eaf59998e7c9)
 
       at Worker.log (src/Worker.ts:77:13)
 
   console.log
-    [Worker:test-worker-unit] Ô£à Job completed: 1774960389492-99d86195-cf77-459b-a685-ce8baa2c084d (3ms)
+    [Worker:test-worker-unit] ÔØî Job failed: 1774960526399-81c14e45-28ba-4719-b223-eaf59998e7c9 - fail
+
+      at Worker.log (src/Worker.ts:77:13)
+
+  console.log
+    [Worker:test-worker-unit] ­ƒøæ Stopping worker gracefully...
+
+      at Worker.log (src/Worker.ts:77:13)
+
+  console.log
+    [Worker:test-worker-unit] Ô£à Worker stopped.
+
+      at Worker.log (src/Worker.ts:77:13)
+
+  console.log
+    [Worker:test-worker-unit] ­ƒæÀ Worker started (concurrency: 1)
+
+      at Worker.log (src/Worker.ts:77:13)
+
+  console.log
+    [Worker:test-worker-unit] ­ƒôí Subscribed to cancellation events on: queue:test-worker-unit:events
+
+      at Worker.log (src/Worker.ts:77:13)
+
+  console.log
+    [Worker:test-worker-unit] ­ƒÜÇ Processing job [test-worker-unit]: batch-fail (ID: 1774960526385-c691b989-4e7c-4470-9278-acf2277fb3ea)
+
+      at Worker.log (src/Worker.ts:77:13)
+
+  console.log
+    [Worker:test-worker-unit] Ô£à Job completed: 1774960526385-c691b989-4e7c-4470-9278-acf2277fb3ea (7ms)
+
+      at Worker.log (src/Worker.ts:77:13)
+
+  console.log
+    [Worker:test-worker-unit] ­ƒÜÇ Processing job [test-worker-unit]: batch-fail (ID: 1774960526398-5bd5e675-1360-4ad3-8faa-2ebfd4a0e446)
+
+      at Worker.log (src/Worker.ts:77:13)
+
+  console.log
+    [Worker:test-worker-unit] Ô£à Job completed: 1774960526398-5bd5e675-1360-4ad3-8faa-2ebfd4a0e446 (5ms)
+
+      at Worker.log (src/Worker.ts:77:13)
+
+  console.log
+    [Worker:test-worker-unit] ­ƒÜÇ Processing job [test-worker-unit]: batch-fail (ID: 1774960526399-81c14e45-28ba-4719-b223-eaf59998e7c9)
+
+      at Worker.log (src/Worker.ts:77:13)
+
+  console.log
+    [Worker:test-worker-unit] Ô£à Job completed: 1774960526399-81c14e45-28ba-4719-b223-eaf59998e7c9 (4ms)
 
       at Worker.log (src/Worker.ts:77:13)
 
@@ -599,12 +599,12 @@
       at Worker.log (src/Worker.ts:77:13)
 
   console.log
-    [Worker:test-worker-unit] ­ƒÜÇ Processing job [test-worker-unit]: should-not-run (ID: 1774960389839-3dceb04f-5994-49ff-9c33-416f1958a913)
+    [Worker:test-worker-unit] ­ƒÜÇ Processing job [test-worker-unit]: should-not-run (ID: 1774960526718-0f5f8a26-0e26-4f2c-9c52-841b71d09672)
 
       at Worker.log (src/Worker.ts:77:13)
 
   console.log
-    [Worker:test-worker-unit] Ô£à Job completed: 1774960389839-3dceb04f-5994-49ff-9c33-416f1958a913 (3ms)
+    [Worker:test-worker-unit] Ô£à Job completed: 1774960526718-0f5f8a26-0e26-4f2c-9c52-841b71d09672 (3ms)
 
       at Worker.log (src/Worker.ts:77:13)
 
@@ -618,37 +618,20 @@
 
       at Worker.log (src/Worker.ts:77:13)
 
-FAIL tests/worker.test.ts (6.345 s)
+PASS tests/worker.test.ts (8.598 s)
   Worker: successful processing
-    ÔêÜ should process a single job and metrics show 1 completed (401 ms)
-    ÔêÜ should process 10 jobs and show 10 completed (224 ms)
-    ÔêÜ should update jobsProcessed counter accurately (151 ms)
+    ÔêÜ should process a single job and metrics show 1 completed (513 ms)
+    ÔêÜ should process 10 jobs and show 10 completed (292 ms)
+    ÔêÜ should update jobsProcessed counter accurately (223 ms)
   Worker: failure handling
-    ÔêÜ should move job to failed after maxAttempts exhausted (143 ms)
-    ├ù should keep job in failed (not waiting) when maxAttempts=1 (147 ms)
-    ÔêÜ should process 10 failing jobs and all appear in failed (150 ms)
+    ÔêÜ should move job to failed after maxAttempts exhausted (258 ms)
+    ÔêÜ should keep job in failed (not waiting) when maxAttempts=1 (587 ms)
+    ÔêÜ should process 10 failing jobs and all appear in failed (345 ms)
   Worker: retry logic
-    ÔêÜ should retry and eventually succeed on second attempt (168 ms)
-    ÔêÜ retryAll should re-queue all failed jobs (348 ms)
+    ÔêÜ should retry and eventually succeed on second attempt (174 ms)
+    ÔêÜ retryAll should re-queue all failed jobs (344 ms)
   Worker: pause/resume
-    ÔêÜ should not process jobs while queue is paused (945 ms)
-
-  ÔùÅ Worker: failure handling ÔÇ║ should keep job in failed (not waiting) when maxAttempts=1
-
-    expect(received).toBe(expected) // Object.is equality
-
-    Expected: 1
-    Received: 0
-
-      183 |     const fetched = await queue.getJob(job.id);
-      184 |     expect(fetched?.status).toBe('FAILED');
-    > 185 |     expect(fetched?.attempts).toBe(1);
-          |                               ^
-      186 |   });
-      187 |
-      188 |   it('should process 10 failing jobs and all appear in failed', async () => {
-
-      at Object.<anonymous> (tests/worker.test.ts:185:31)
+    ÔêÜ should not process jobs while queue is paused (961 ms)
 
   console.log
     ­ƒôí Loaded Lua command: redis.cancel()
@@ -702,28 +685,28 @@ FAIL tests/worker.test.ts (6.345 s)
 
 PASS tests/queue.test.ts
   Queue.add()
-    ÔêÜ should return a job with the correct name and data (29 ms)
-    ÔêÜ should default to normal priority and 3 maxAttempts (6 ms)
-    ÔêÜ should respect custom priority option (5 ms)
-    ÔêÜ should add job to the waiting sorted set immediately (8 ms)
-    ÔêÜ should put delayed jobs in the delayed set (8 ms)
-    ÔêÜ should add multiple jobs without collision (11 ms)
+    ÔêÜ should return a job with the correct name and data (57 ms)
+    ÔêÜ should default to normal priority and 3 maxAttempts (8 ms)
+    ÔêÜ should respect custom priority option (6 ms)
+    ÔêÜ should add job to the waiting sorted set immediately (13 ms)
+    ÔêÜ should put delayed jobs in the delayed set (10 ms)
+    ÔêÜ should add multiple jobs without collision (6 ms)
   Queue.getJob()
-    ÔêÜ should return the job by ID (7 ms)
-    ÔêÜ should return null for a non-existent job ID (5 ms)
+    ÔêÜ should return the job by ID (10 ms)
+    ÔêÜ should return null for a non-existent job ID (6 ms)
   Queue.getMetrics()
-    ÔêÜ should return all zeros on an empty queue (6 ms)
+    ÔêÜ should return all zeros on an empty queue (13 ms)
     ÔêÜ should count waiting jobs correctly (10 ms)
-    ÔêÜ should count cancelled jobs after cancel() (12 ms)
+    ÔêÜ should count cancelled jobs after cancel() (11 ms)
   Queue.clearCompleted()
-    ÔêÜ should return 0 when there is nothing to clear (5 ms)
+    ÔêÜ should return 0 when there is nothing to clear (7 ms)
   Queue.isPaused()
-    ÔêÜ should not be paused by default (5 ms)
-    ÔêÜ should be paused after pauseQueue() (7 ms)
-    ÔêÜ should be unpaused after resumeQueue() (11 ms)
+    ÔêÜ should not be paused by default (9 ms)
+    ÔêÜ should be paused after pauseQueue() (11 ms)
+    ÔêÜ should be unpaused after resumeQueue() (7 ms)
 
-Test Suites: 1 failed, 1 passed, 2 total
-Tests:       1 failed, 23 passed, 24 total
+Test Suites: 2 passed, 2 total
+Tests:       24 passed, 24 total
 Snapshots:   0 total
-Time:        7.55 s, estimated 19 s
+Time:        9.879 s
 Ran all test suites matching tests/queue.test.ts|tests/worker.test.ts.
