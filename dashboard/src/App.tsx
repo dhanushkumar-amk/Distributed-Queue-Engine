@@ -63,6 +63,19 @@ interface ThroughputBucket {
   failed: number;
 }
 
+// Phase 38: Worker status data from Redis hash
+interface WorkerInfo {
+  pid: string;
+  host: string;
+  queues: string;
+  startedAt: string;
+  jobsProcessed: string;
+  currentJob: string;
+  lastHeartbeat: string;
+  concurrency: string;
+}
+
+
 const PAGE_SIZE = 25;
 const POLL_INTERVAL = 5000;
 const THROUGHPUT_POLL = 30000;
@@ -89,6 +102,9 @@ export default function App() {
   const [isRetryingAll, setIsRetryingAll] = useState(false);
   const [isClearing, setIsClearing] = useState(false);
   const [isTogglingPause, setIsTogglingPause] = useState(false);
+  // Phase 38 state
+  const [workers, setWorkers] = useState<WorkerInfo[]>([]);
+  const [showWorkers, setShowWorkers] = useState(false);
   const socketRef = useRef<Socket | null>(null);
 
   // Fetch queue list on mount
@@ -116,6 +132,18 @@ export default function App() {
     const t = setInterval(checkPause, POLL_INTERVAL);
     return () => clearInterval(t);
   }, [selectedQueue]);
+
+  // Phase 38: Poll /api/workers every 10s (independent of selected queue)
+  useEffect(() => {
+    const fetchWorkers = () =>
+      fetch('/api/workers')
+        .then(r => r.ok ? r.json() : null)
+        .then(d => { if (d?.workers) setWorkers(d.workers); })
+        .catch(() => {});
+    fetchWorkers();
+    const t = setInterval(fetchWorkers, 10000);
+    return () => clearInterval(t);
+  }, []);
 
   // Fetch throughput data
   const fetchThroughput = useCallback(async () => {
@@ -431,6 +459,20 @@ export default function App() {
               Clear Done
             </button>
 
+            {/* Phase 38 — Toggle Workers Panel */}
+            <button
+              onClick={() => setShowWorkers(v => !v)}
+              title="Toggle worker status panel"
+              className={`h-10 px-4 flex items-center gap-2 rounded-xl border text-xs font-black uppercase tracking-wider transition-all active:scale-95
+                ${showWorkers
+                  ? 'bg-blue-600 border-blue-600 text-white'
+                  : 'border-slate-200 bg-white text-slate-500 hover:bg-blue-50 hover:border-blue-300 hover:text-blue-600'}`}
+            >
+              <Cpu className="h-4 w-4" />
+              Workers
+              <span className={`text-[9px] px-1.5 py-0.5 rounded-full font-mono ${showWorkers ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-500'}`}>{workers.length}</span>
+            </button>
+
             <button
               onClick={() => refreshDashboard(true)}
               className={`h-10 w-10 flex items-center justify-center rounded-xl border border-slate-200 bg-white shadow-sm transition-all active:scale-95 ${isRefreshing ? 'text-blue-600' : 'text-slate-400 hover:text-slate-900 hover:bg-slate-50'}`}
@@ -471,6 +513,33 @@ export default function App() {
           <LatencyCard label="P95 Latency" subtitle="95th percentile" value={metrics?.p95 ?? null} color="orange" />
           <LatencyCard label="P99 Latency" subtitle="99th percentile" value={metrics?.p99 ?? null} color="rose" />
         </div>
+
+        {/* ── Phase 38: Worker Status Panel ────────────────────────────────── */}
+        {showWorkers && (
+          <div className="bg-white rounded-[32px] border border-slate-200/60 shadow-xl shadow-slate-200/40 p-10 mb-12">
+            <div className="flex items-center justify-between mb-8">
+              <div className="flex items-center gap-4">
+                <div className="bg-blue-50 p-2.5 rounded-2xl">
+                  <Cpu className="h-5 w-5 text-blue-600" />
+                </div>
+                <div>
+                  <h2 className="text-sm font-black text-slate-800 uppercase tracking-tight">Worker Status Panel</h2>
+                  <p className="text-[10px] text-slate-400 font-bold mt-0.5">Live — refreshes every 10s · green &lt;15s · yellow 15-30s · red &gt;30s</p>
+                </div>
+              </div>
+              <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{workers.length} worker{workers.length !== 1 ? 's' : ''} online</span>
+            </div>
+            {workers.length === 0 ? (
+              <div className="h-32 flex items-center justify-center text-slate-400 text-sm font-bold">
+                No active workers detected — start a worker process first
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {workers.map((w, i) => <WorkerCard key={`${w.pid}-${w.queues}-${i}`} worker={w} />)}
+              </div>
+            )}
+          </div>
+        )}
 
         {/* ── Phase 35: Throughput Chart ───────────────────────────────────── */}
         {showChart && (
@@ -730,6 +799,70 @@ export default function App() {
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+// ─── WorkerCard (Phase 38) ────────────────────────────────────────────────────
+function WorkerCard({ worker }: { worker: WorkerInfo }) {
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    const t = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(t);
+  }, []);
+
+  const lastBeat   = parseInt(worker.lastHeartbeat || '0', 10);
+  const age        = Math.floor((now - lastBeat) / 1000);
+
+  // Color rules: green < 15s, yellow 15-30s, red > 30s
+  const statusColor =
+    age < 15  ? { dot: 'bg-emerald-500', border: 'border-emerald-100', ring: 'shadow-emerald-200/60', label: 'text-emerald-600', badge: 'bg-emerald-50 text-emerald-600' } :
+    age < 30  ? { dot: 'bg-amber-400',   border: 'border-amber-100',   ring: 'shadow-amber-200/60',   label: 'text-amber-600',   badge: 'bg-amber-50 text-amber-600'   } :
+                { dot: 'bg-rose-500',    border: 'border-rose-100',    ring: 'shadow-rose-200/60',    label: 'text-rose-600',    badge: 'bg-rose-50 text-rose-600'     };
+
+  const startedAgo = Math.floor((now - parseInt(worker.startedAt || '0', 10)) / 1000);
+  const uptimeFmt  = startedAgo < 60   ? `${startedAgo}s`
+                   : startedAgo < 3600 ? `${Math.floor(startedAgo / 60)}m`
+                   : `${Math.floor(startedAgo / 3600)}h ${Math.floor((startedAgo % 3600) / 60)}m`;
+
+  return (
+    <div className={`bg-white border ${statusColor.border} rounded-[20px] p-6 shadow-md ${statusColor.ring} hover:shadow-xl transition-all duration-300`}>
+      {/* Header: PID + heartbeat dot */}
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-2.5">
+          <div className={`h-2.5 w-2.5 rounded-full ${statusColor.dot} shadow-[0_0_8px_currentColor] animate-pulse`} />
+          <span className="text-xs font-black text-slate-700 font-mono">PID {worker.pid}</span>
+        </div>
+        <span className={`text-[9px] font-black uppercase tracking-widest px-2 py-1 rounded-lg ${statusColor.badge}`}>
+          {age < 15 ? 'LIVE' : age < 30 ? 'STALE' : 'DEAD'}
+        </span>
+      </div>
+
+      {/* Stats */}
+      <div className="space-y-2.5">
+        <Row label="Host"       value={worker.host} />
+        <Row label="Queues"     value={worker.queues} />
+        <Row label="Uptime"     value={uptimeFmt} />
+        <Row label="Jobs Done"  value={worker.jobsProcessed || '0'} />
+        <Row label="Concurrency" value={worker.concurrency || '1'} />
+        {worker.currentJob && (
+          <Row label="Current Job" value={worker.currentJob.length > 24 ? `${worker.currentJob.slice(0, 24)}\u2026` : worker.currentJob} />
+        )}
+      </div>
+
+      {/* Last heartbeat footer */}
+      <div className={`mt-4 text-[9px] font-bold uppercase tracking-widest ${statusColor.label}`}>
+        Last heartbeat: {age < 5 ? 'just now' : `${age}s ago`}
+      </div>
+    </div>
+  );
+}
+
+function Row({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex items-center justify-between">
+      <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">{label}</span>
+      <span className="text-[11px] font-bold text-slate-700 font-mono max-w-[60%] text-right truncate">{value}</span>
     </div>
   );
 }

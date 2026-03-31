@@ -66,3 +66,13 @@ export function latencyKey(queueName: string): string {
 export function pauseKey(queueName: string): string {
   return `${PREFIX}:${queueName}:paused`;
 }
+
+// Hash key for a single worker instance. Stores pid, host, heartbeat, stats.
+// Pattern: queue:{queueName}:workers:{pid}
+// Used for the Worker Status Panel (Phase 38).
+export function workerKey(queueName: string, pid: number): string {
+  return `${PREFIX}:${queueName}:workers:${pid}`;
+}
+
+// Glob pattern to SCAN for all worker keys across all queues.
+export const WORKER_KEY_PATTERN = `${PREFIX}:*:workers:*`;

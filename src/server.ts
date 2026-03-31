@@ -82,7 +82,7 @@ async function main() {
   app.use(express.json());
 
   // Mount the queue API under /api
-  app.use('/api', createQueueRouter(queues));
+  app.use('/api', createQueueRouter(queues, redis));
 
   // Root welcome route
   app.get('/', (_req, res) => {

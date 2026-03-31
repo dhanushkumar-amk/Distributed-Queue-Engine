@@ -1,7 +1,8 @@
 import { Redis } from 'ioredis';
 import { EventEmitter } from 'events';
+import * as os from 'os';
 import { Job, JobOptions, hydrateJob, JobStatus, WorkerOptions } from './types';
-import { jobKey, waitingKey, delayedKey, activeKey, failedKey, completedKey, channelKey, limiterKey, latencyKey, pauseKey } from './keys';
+import { jobKey, waitingKey, delayedKey, activeKey, failedKey, completedKey, channelKey, limiterKey, latencyKey, pauseKey, workerKey, WORKER_KEY_PATTERN } from './keys';
 
 /**
  * Worker class to process jobs from one or more queues.
@@ -23,6 +24,14 @@ export class Worker<T = any> extends EventEmitter {
   private subRedis?: Redis;
   private cancelledJobs: Set<string> = new Set();
   private options: WorkerOptions;
+
+  // Phase 38: Worker identity & stats
+  private readonly workerPid: number = process.pid;
+  private readonly workerHost: string = os.hostname();
+  private readonly startedAt: number = Date.now();
+  private jobsProcessed: number = 0;
+  private workerStatusTimer?: NodeJS.Timeout;
+  private readonly STATUS_TTL = 45; // seconds — key expires if no heartbeat
 
   constructor(
     queueNames: string | string[], 
@@ -81,6 +90,7 @@ export class Worker<T = any> extends EventEmitter {
     });
 
     this.startHeartbeatLoop();
+    this.startWorkerStatusLoop(); // Phase 38
 
     // Begin polling
     this.poll();
@@ -97,6 +107,13 @@ export class Worker<T = any> extends EventEmitter {
       clearInterval(this.heartbeatTimer);
       this.heartbeatTimer = undefined;
     }
+
+    // Phase 38: stop status loop & delete worker hash keys
+    if (this.workerStatusTimer) {
+      clearInterval(this.workerStatusTimer);
+      this.workerStatusTimer = undefined;
+    }
+    await this.deleteWorkerStatus().catch(() => {});
 
     if (this.subRedis) {
       this.subRedis.disconnect();
@@ -233,6 +250,10 @@ export class Worker<T = any> extends EventEmitter {
       latencyPipeline.zremrangebyrank(lk, 0, -1001); // keep newest 1000
       await latencyPipeline.exec();
 
+      // Phase 38: count completed jobs + push fresh status immediately
+      this.jobsProcessed++;
+      this.publishWorkerStatus().catch(() => {});
+
       this.log(`✅ Job completed: ${job.id} (${duration}ms)`, qName);
       this.emit('completed', job, result);
     } catch (err: any) {
@@ -271,6 +292,52 @@ export class Worker<T = any> extends EventEmitter {
     }
 
     await Promise.all(promises);
+  }
+
+  // ── Phase 38: Worker Status Heartbeat ──────────────────────────────────────
+  private startWorkerStatusLoop(): void {
+    // Publish immediately, then every 15s
+    this.publishWorkerStatus().catch(() => {});
+    this.workerStatusTimer = setInterval(() => {
+      this.publishWorkerStatus().catch(err => this.log(`Status Heartbeat Error: ${err.message}`));
+    }, this.heartbeatInterval);
+  }
+
+  /**
+   * Writes worker identity + live stats into a Redis Hash with a 45s TTL.
+   * One Hash per (queueName × pid) so multiple queues get separate entries.
+   */
+  private async publishWorkerStatus(): Promise<void> {
+    const now     = Date.now();
+    const current = this.activeJobs.size > 0
+      ? [...this.activeJobs.keys()].join(',')
+      : '';
+
+    const pipeline = this.redis.pipeline();
+    for (const qName of this.queueNames) {
+      const wk = workerKey(qName, this.workerPid);
+      pipeline.hset(wk,
+        'pid',            String(this.workerPid),
+        'host',           this.workerHost,
+        'queues',         this.queueNames.join(','),
+        'startedAt',      String(this.startedAt),
+        'jobsProcessed',  String(this.jobsProcessed),
+        'currentJob',     current,
+        'lastHeartbeat',  String(now),
+        'concurrency',    String(this.concurrency),
+      );
+      pipeline.expire(wk, this.STATUS_TTL);
+    }
+    await pipeline.exec();
+  }
+
+  /** Deletes all worker hash keys for this process on graceful stop. */
+  private async deleteWorkerStatus(): Promise<void> {
+    const pipeline = this.redis.pipeline();
+    for (const qName of this.queueNames) {
+      pipeline.del(workerKey(qName, this.workerPid));
+    }
+    await pipeline.exec();
   }
 
   private calculateNextRunAt(job: Job<T>, now: number): number {

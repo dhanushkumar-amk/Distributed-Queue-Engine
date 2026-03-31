@@ -1,6 +1,8 @@
 import { Router, Request, Response } from 'express';
+import { Redis } from 'ioredis';
 import { Queue } from './Queue';
 import { CleanupOptions } from './types';
+import { WORKER_KEY_PATTERN } from './keys';
 
 /**
  * Creates an Express router that exposes all queue management endpoints.
@@ -9,7 +11,7 @@ import { CleanupOptions } from './types';
  *   const registry = { emails: new Queue('emails', redis) };
  *   app.use('/api', createQueueRouter(registry));
  */
-export function createQueueRouter(registry: Record<string, Queue>): Router {
+export function createQueueRouter(registry: Record<string, Queue>, redis: Redis): Router {
   const router = Router();
 
   // Helpers — cast Express 5 union params to plain strings
@@ -29,6 +31,34 @@ export function createQueueRouter(registry: Record<string, Queue>): Router {
   // ─── GET /queues ──────────────────────────────────────────
   router.get('/queues', (_req: Request, res: Response) => {
     res.json({ queues: Object.keys(registry) });
+  });
+
+  // ─── GET /workers ─────────────────────────────────────────
+  // Phase 38: Scans all worker hash keys and returns live worker info.
+  router.get('/workers', async (_req: Request, res: Response) => {
+    try {
+      const workers: Record<string, string>[] = [];
+      let cursor = '0';
+      // SCAN incrementally to avoid blocking Redis
+      do {
+        const [nextCursor, keys] = await redis.scan(cursor, 'MATCH', WORKER_KEY_PATTERN, 'COUNT', 100);
+        cursor = nextCursor;
+        if (keys.length > 0) {
+          const pipeline = redis.pipeline();
+          for (const key of keys) pipeline.hgetall(key);
+          const results = await pipeline.exec();
+          results?.forEach(([err, data]) => {
+            if (!err && data && typeof data === 'object') {
+              workers.push(data as Record<string, string>);
+            }
+          });
+        }
+      } while (cursor !== '0');
+
+      res.json({ workers });
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
   });
 
   // ─── GET /queues/:name/metrics ────────────────────────────
