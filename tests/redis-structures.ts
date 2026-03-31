@@ -1,12 +1,10 @@
-import { GenericContainer } from 'testcontainers';
+import { setupRedisContainer } from './test-helper';
 
 async function exerciseRedisStructures() {
   console.log("--- Redis Structure Deep Dive ---");
 
-  const container = await new GenericContainer("redis:7-alpine").withExposedPorts(6379).start();
-  process.env.REDIS_URL = `redis://${container.getHost()}:${container.getMappedPort(6379)}`;
-
-  const { default: redis } = await import("../src/redis");
+  const context = await setupRedisContainer();
+  const redis = context.redis;
 
   try {
     // 1. Strings (Simple Key-Value)
@@ -20,7 +18,7 @@ async function exerciseRedisStructures() {
     await redis.hset("job:1", {
       name: "send-email",
       data: JSON.stringify({ to: "user@example.com", body: "Welcome!" }),
-      attempts: 0,
+      attempts: "0",
       priority: "high"
     });
     const jobData = await redis.hgetall("job:1");
@@ -58,7 +56,7 @@ async function exerciseRedisStructures() {
   } finally {
     console.log("\n--- Exercise Finished ---");
     await redis.quit();
-    await container.stop();
+    await context.container.stop();
     process.exit(0);
   }
 }

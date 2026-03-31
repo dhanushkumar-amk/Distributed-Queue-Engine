@@ -16,7 +16,7 @@ import { Queue } from '../src/Queue';
 import { Worker } from '../src/Worker';
 import { loadScripts } from '../src/scripts';
 import { Job } from '../src/types';
-import { GenericContainer, StartedTestContainer } from 'testcontainers';
+import { setupRedisContainer, teardownRedisContainer, TestContext } from './test-helper';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -63,30 +63,20 @@ async function withWorker<T>(
 
 // ─── Shared setup ─────────────────────────────────────────────────────────────
 
-let redisContainer: StartedTestContainer;
-let redis: Redis;
+let context: TestContext;
 let queue: Queue;
 
 beforeAll(async () => {
-  redisContainer = await new GenericContainer("redis:7-alpine")
-    .withExposedPorts(6379)
-    .start();
-    
-  const host = redisContainer.getHost();
-  const port = redisContainer.getMappedPort(6379);
-
-  redis = new Redis({ host, port, lazyConnect: false, db: 1 });
-  await loadScripts(redis);
+  context = await setupRedisContainer();
 }, 60000);
 
 afterAll(async () => {
-  await redis.quit();
-  await redisContainer.stop();
+  await teardownRedisContainer(context);
 });
 
 beforeEach(async () => {
-  await redis.flushdb();
-  queue = new Queue(TEST_QUEUE, redis);
+  await context.redis.flushdb();
+  queue = new Queue(TEST_QUEUE, context.redis);
 });
 
 // ─── Tests ────────────────────────────────────────────────────────────────────
@@ -95,7 +85,7 @@ describe('Worker: successful processing', () => {
   it('should process a single job and metrics show 1 completed', async () => {
     await queue.add('ping', { value: 1 });
 
-    await withWorker(queue, redis, async (_job) => {
+    await withWorker(queue, context.redis, async (_job) => {
       // No-op processor — job succeeds immediately
     }, async () => {
       await waitFor(async () => {
@@ -119,7 +109,7 @@ describe('Worker: successful processing', () => {
     const processed: number[] = [];
 
     await withWorker<{ index: number }>(
-      queue, redis,
+      queue, context.redis,
       async (job) => { processed.push(job.data.index); },
       async () => {
         await waitFor(async () => {
@@ -144,7 +134,7 @@ describe('Worker: successful processing', () => {
     const worker = new Worker(
       TEST_QUEUE,
       async () => { processedCount++; },
-      redis,
+      context.redis,
       { pollInterval: 100 }
     );
     await worker.start();
@@ -164,7 +154,7 @@ describe('Worker: failure handling', () => {
     // attempts:1 → fails immediately with no retry
     await queue.add('always-fail', { reason: 'boom' }, { attempts: 1 });
 
-    await withWorker(queue, redis, async (_job) => {
+    await withWorker(queue, context.redis, async (_job) => {
       throw new Error('Intentional failure for testing');
     }, async () => {
       await waitFor(async () => {
@@ -181,7 +171,7 @@ describe('Worker: failure handling', () => {
   it('should keep job in failed (not waiting) when maxAttempts=1', async () => {
     const job = await queue.add('fail-no-retry', {}, { attempts: 1 });
 
-    await withWorker(queue, redis, async () => {
+    await withWorker(queue, context.redis, async () => {
       throw new Error('fail');
     }, async () => {
       await waitFor(async () => {
@@ -200,7 +190,7 @@ describe('Worker: failure handling', () => {
       await queue.add('fail-all', { i }, { attempts: 1 });
     }
 
-    await withWorker(queue, redis, async () => {
+    await withWorker(queue, context.redis, async () => {
       throw new Error('always fail');
     }, async () => {
       await waitFor(async () => {
@@ -220,7 +210,7 @@ describe('Worker: retry logic', () => {
     await queue.add('flaky', {}, { attempts: 3, backoff: { type: 'fixed', delay: 100 } });
 
     let attempt = 0;
-    await withWorker(queue, redis, async (_job) => {
+    await withWorker(queue, context.redis, async (_job) => {
       attempt++;
       if (attempt < 2) throw new Error('First attempt fails');
       // Second attempt succeeds
@@ -244,7 +234,7 @@ describe('Worker: retry logic', () => {
     }
 
     // Worker 1: fail all 3
-    await withWorker(queue, redis, async () => {
+    await withWorker(queue, context.redis, async () => {
       throw new Error('fail');
     }, async () => {
       await waitFor(async () => {
@@ -258,7 +248,7 @@ describe('Worker: retry logic', () => {
     expect(retried).toBe(3);
 
     // Worker 2: process re-queued jobs successfully
-    await withWorker(queue, redis, async () => {
+    await withWorker(queue, context.redis, async () => {
       // success this time
     }, async () => {
       await waitFor(async () => {
@@ -282,7 +272,7 @@ describe('Worker: pause/resume', () => {
     const worker = new Worker(
       TEST_QUEUE,
       async () => { processed = true; },
-      redis,
+      context.redis,
       { pollInterval: 100 }
     );
     await worker.start();

@@ -4,5 +4,5 @@
     "rootDir": ".",
     "types": ["jest", "node"]
   },
-  "include": ["src/**/*", "tests/queue.test.ts", "tests/worker.test.ts"]
+  "include": ["src/**/*", "tests/**/*.test.ts", "tests/test-helper.ts"]
 }
