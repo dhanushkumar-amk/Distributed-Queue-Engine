@@ -9,8 +9,13 @@ import { Worker } from './Worker';
 import { Scheduler } from './Scheduler';
 import { createQueueRouter } from './api';
 import { registerShutdownHandlers } from './shutdown';
+import * as path from 'path';
+import * as fs from 'fs';
 
 const PORT = process.env.PORT ? parseInt(process.env.PORT) : 3000;
+const DISABLE_WORKERS = process.env.DISABLE_WORKERS === 'true';
+const DISABLE_API = process.env.DISABLE_API === 'true';
+const DISABLE_SCHEDULER = process.env.DISABLE_SCHEDULER === 'true';
 
 async function main() {
   // Step 1: Load all Lua scripts into Redis
@@ -29,27 +34,33 @@ async function main() {
     'reports':      new Queue('reports', redis),
   };
 
-  // Step 3: Example workers (in production these would be in separate processes)
-  const emailWorker = new Worker('emails', async (job) => {
-    // Phase 36 test: random duration so p50/p95/p99 are meaningfully different
-    const delay = Math.floor(Math.random() * 1950) + 50; // 50ms – 2000ms
-    console.log(`[Email Worker] Processing: ${job.name} (simulated ${delay}ms)`, job.data);
-    await new Promise(r => setTimeout(r, delay));
-  }, redis, { concurrency: 3 });
+  // Step 3: Example workers (only if not disabled)
+  const workers: Worker[] = [];
+  if (!DISABLE_WORKERS) {
+    const emailWorker = new Worker('emails', async (job) => {
+      // Phase 36 test: random duration so p50/p95/p99 are meaningfully different
+      const delay = Math.floor(Math.random() * 1950) + 50; // 50ms – 2000ms
+      console.log(`[Worker ${process.env.HOSTNAME || 'local'}] Processing: ${job.name} (simulated ${delay}ms)`, job.data);
+      await new Promise(r => setTimeout(r, delay));
+    }, redis, { concurrency: 3 });
 
-  const multiWorker = new Worker(
-    ['notifications', 'reports'],
-    async (job) => {
-      console.log(`[MultiWorker] Processing [${job.queueName}]: ${job.name}`);
-      await new Promise(r => setTimeout(r, 200));
-    },
-    redis,
-    { concurrency: 2 }
-  );
+    const multiWorker = new Worker(
+      ['notifications', 'reports'],
+      async (job) => {
+        console.log(`[Worker ${process.env.HOSTNAME || 'local'}] Processing [${job.queueName}]: ${job.name}`);
+        await new Promise(r => setTimeout(r, 200));
+      },
+      redis,
+      { concurrency: 2 }
+    );
 
-  await emailWorker.start();
-  await multiWorker.start();
-  console.log('✅ Workers started.');
+    await emailWorker.start();
+    await multiWorker.start();
+    workers.push(emailWorker, multiWorker);
+    console.log('✅ Workers started.');
+  } else {
+    console.log('ℹ️ Workers disabled via env.');
+  }
 
   // Step 4: Start auto-cleanup/watchdog on all queues
   Object.values(queues).forEach(q => {
@@ -57,88 +68,111 @@ async function main() {
     q.startWatchdog(30_000, 60_000);
   });
 
-  // Step 4b: Start Scheduler for cron/repeatable jobs
-  const scheduler = new Scheduler(redis, Object.values(queues), 500);
-  scheduler.start();
+  // Step 4b: Start Scheduler for cron/repeatable jobs (only if not disabled)
+  let scheduler: Scheduler | undefined;
+  if (!DISABLE_SCHEDULER) {
+    scheduler = new Scheduler(redis, Object.values(queues), 500);
+    scheduler.start();
 
-  // Register a sample repeatable job — runs every 10 seconds (for testing)
-  // Expression "*/10 * * * * *" = every 10 seconds (6-field with seconds)
-  await queues['reports'].addRepeatable(
-    'daily-summary',
-    { type: 'summary', time: 'auto' },
-    '*/10 * * * * *',       // every 10 seconds — change to "0 0 * * *" for daily
-    { attempts: 2, priority: 'normal' }
-  );
-
-  // Step 5: Build Express & Socket.IO app
-  const app = express();
-  const httpServer = createServer(app);
-  const io = new SocketIOServer(httpServer, {
-    cors: {
-      origin: "*", // Adjust for production
-      methods: ["GET", "POST"]
-    }
-  });
-
-  app.use(express.json());
-
-  // Mount the queue API under /api
-  app.use('/api', createQueueRouter(queues, redis));
-
-  // Root welcome route
-  app.get('/', (_req, res) => {
-    res.json({
-      name: 'Distributed Queue Engine',
-      version: '1.0.0',
-      docs: 'GET /api/health | GET /api/queues | GET /api/queues/:name/metrics',
-    });
-  });
-
-  // Socket.IO Connection Logic
-  io.on('connection', (socket) => {
-    console.log(`📡 Dashboard client connected: ${socket.id}`);
-    socket.on('disconnect', () => console.log(`🔌 Dashboard client disconnected: ${socket.id}`));
-  });
-
-  // Step 6: Relay Redis events to Socket.IO
-  // We subscribe to all queue events using p-subscribe or multiple subscribe
-  // For simplicity, let's join the event channels
-  const channels = Object.keys(queues).map(name => `queue:${name}:events`);
-  if (channels.length > 0) {
-    await subRedis.subscribe(...channels);
-    subRedis.on('message', (channel, message) => {
-      try {
-        const data = JSON.parse(message);
-        // Broadcast to all connected web clients
-        io.emit('job-event', { ...data, channel });
-      } catch (e) {
-        console.error('Failed to parse Redis event message', e);
-      }
-    });
-    console.log(`📢 Subscribed to events for: ${Object.keys(queues).join(', ')}`);
+    // Register a sample repeatable job — runs every 10 seconds (for testing)
+    await queues['reports'].addRepeatable(
+      'daily-summary',
+      { type: 'summary', time: 'auto' },
+      '*/10 * * * * *',
+      { attempts: 2, priority: 'normal' }
+    );
+    console.log('✅ Scheduler started.');
   }
 
-  // Global error handler
-  app.use((err: any, _req: any, res: any, _next: any) => {
-    console.error('API Error:', err.message);
-    res.status(500).json({ error: 'Internal server error.' });
-  });
+  if (!DISABLE_API) {
+    // Step 5: Build Express & Socket.IO app
+    const app = express();
+    const httpServer = createServer(app);
+    const io = new SocketIOServer(httpServer, {
+      cors: {
+        origin: "*", 
+        methods: ["GET", "POST"]
+      }
+    });
 
-  httpServer.listen(PORT, () => {
-    console.log(`\n🚀 Queue Dashboard + Real-time Socket Server running at http://localhost:${PORT}`);
-    console.log(`   Health:  http://localhost:${PORT}/api/health`);
-    console.log(`   Queues:  http://localhost:${PORT}/api/queues`);
-  });
+    app.use(express.json());
 
-  // ── Graceful shutdown (SIGTERM + SIGINT) ──────────────────────────────────
-  registerShutdownHandlers({
-    workers:      [emailWorker, multiWorker],
-    queues:       Object.values(queues),
-    redisClients: [redis, subRedis],
-    httpServer,
-    scheduler,
-    drainTimeoutMs: 30_000,
-  });
+    // Mount the queue API under /api
+    app.use('/api', createQueueRouter(queues, redis));
+
+    // Serve dashboard static files if they exist
+    const dashboardPath = path.join(__dirname, '../dashboard/dist');
+    if (fs.existsSync(dashboardPath)) {
+      app.use(express.static(dashboardPath));
+      app.get('*', (req, res, next) => {
+        if (req.path.startsWith('/api')) return next();
+        res.sendFile(path.join(dashboardPath, 'index.html'));
+      });
+      console.log(`✅ Serving dashboard from ${dashboardPath}`);
+    }
+
+    // Root welcome route
+    app.get('/', (_req, res) => {
+      res.json({
+        name: 'Distributed Queue Engine',
+        version: '1.0.0',
+        docs: 'GET /api/health | GET /api/queues | GET /api/queues/:name/metrics',
+      });
+    });
+
+    // Socket.IO Connection Logic
+    io.on('connection', (socket) => {
+      console.log(`📡 Dashboard client connected: ${socket.id}`);
+      socket.on('disconnect', () => console.log(`🔌 Dashboard client disconnected: ${socket.id}`));
+    });
+
+    // Step 6: Relay Redis events to Socket.IO
+    const channels = Object.keys(queues).map(name => `queue:${name}:events`);
+    if (channels.length > 0) {
+      await subRedis.subscribe(...channels);
+      subRedis.on('message', (channel, message) => {
+        try {
+          const data = JSON.parse(message);
+          io.emit('job-event', { ...data, channel });
+        } catch (e) {
+          console.error('Failed to parse Redis event message', e);
+        }
+      });
+      console.log(`📢 Subscribed to events for: ${Object.keys(queues).join(', ')}`);
+    }
+
+    // Global error handler
+    app.use((err: any, _req: any, res: any, _next: any) => {
+      console.error('API Error:', err.message);
+      res.status(500).json({ error: 'Internal server error.' });
+    });
+
+    httpServer.listen(PORT, () => {
+      console.log(`\n🚀 Queue Dashboard + Real-time Socket Server running at http://localhost:${PORT}`);
+      console.log(`   Health:  http://localhost:${PORT}/api/health`);
+      console.log(`   Queues:  http://localhost:${PORT}/api/queues`);
+    });
+
+    // ── Graceful shutdown (SIGTERM + SIGINT) ──────────────────────────────────
+    registerShutdownHandlers({
+      workers,
+      queues:       Object.values(queues),
+      redisClients: [redis, subRedis],
+      httpServer,
+      scheduler,
+      drainTimeoutMs: 30_000,
+    });
+  } else {
+    console.log('ℹ️ API disabled via env.');
+    // If no API, we still need shutdown handlers for workers/scheduler
+    registerShutdownHandlers({
+      workers,
+      queues:       Object.values(queues),
+      redisClients: [redis, subRedis],
+      scheduler,
+      drainTimeoutMs: 30_000,
+    });
+  }
 }
 
 main().catch(err => {

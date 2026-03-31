@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  redis:
+    image: redis:7-alpine
+    container_name: queue-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: always
+
+  worker:
+    build: .
+    image: distributed-queue-engine:latest
+    depends_on:
+      - redis
+    environment:
+      - REDIS_URL=redis://redis:6379
+      - DISABLE_API=true
+      - DISABLE_SCHEDULER=true
+      - DISABLE_WORKERS=false
+    deploy:
+      replicas: 3
+    restart: always
+
+  dashboard:
+    build: .
+    image: distributed-queue-engine:latest
+    depends_on:
+      - redis
+    ports:
+      - "3002:3000"
+    environment:
+      - REDIS_URL=redis://redis:6379
+      - DISABLE_API=false
+      - DISABLE_SCHEDULER=false
+      - DISABLE_WORKERS=true
+    restart: always
+
+volumes:
+  redis_data:
