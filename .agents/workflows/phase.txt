@@ -76,12 +76,12 @@ docker-compose.yml
 
     **What you do:**
 
-    - [ ]  Write one paragraph: exactly what problem this engine solves
-    - [ ]  List real-world use cases: email sending, image resizing, report generation, notifications
-    - [ ]  Draw the four Redis data structures on paper: waiting (Sorted Set), active (Hash), failed (Sorted Set), jobs (Hash)
-    - [ ]  Draw the job lifecycle: created → waiting → active → completed/failed → DLQ
-    - [ ]  Write down every component: Queue, Worker, Scheduler, Watchdog, Dashboard
-    - [ ]  Define what "done" means for this project (live dashboard + 3 Docker workers)
+    - [x]  Write one paragraph: exactly what problem this engine solves
+    - [x]  List real-world use cases: email sending, image resizing, report generation, notifications
+    - [x]  Draw the four Redis data structures on paper: waiting (Sorted Set), active (Hash), failed (Sorted Set), jobs (Hash)
+    - [x]  Draw the job lifecycle: created → waiting → active → completed/failed → DLQ
+    - [x]  Write down every component: Queue, Worker, Scheduler, Watchdog, Dashboard
+    - [x]  Define what "done" means for this project (live dashboard + 3 Docker workers)
 
     **What you learn:**
 
@@ -93,14 +93,14 @@ docker-compose.yml
 
     **What you do:**
 
-    - [ ]  Create GitHub repo `job-queue-engine` — public
-    - [ ]  Clone to machine, create folder structure: src/, tests/, scripts/, dashboard/
-    - [ ]  npm init -y → install: typescript, ts-node, nodemon, @types/node
-    - [ ]  Create tsconfig.json: target ES2020, strict true, outDir dist
-    - [ ]  Add npm scripts: dev (nodemon src/index.ts), build (tsc), test (jest)
-    - [ ]  Create src/index.ts printing "Queue Engine starting..."
-    - [ ]  Verify: npm run dev → see message
-    - [ ]  First commit: "Initial TypeScript project setup"
+    - [x]  Create GitHub repo `job-queue-engine` — public
+    - [x]  Clone to machine, create folder structure: src/, tests/, scripts/, dashboard/
+    - [x]  npm init -y → install: typescript, ts-node, nodemon, @types/node
+    - [x]  Create tsconfig.json: target ES2020, strict true, outDir dist
+    - [x]  Add npm scripts: dev (nodemon src/index.ts), build (tsc), test (jest)
+    - [x]  Create src/index.ts printing "Queue Engine starting..."
+    - [x]  Verify: npm run dev → see message
+    - [x]  First commit: "Initial TypeScript project setup"
 
     **What you learn:**
 
@@ -112,14 +112,14 @@ docker-compose.yml
 
     **What you do:**
 
-    - [ ]  Install ioredis and @types/ioredis (or built-in types)
-    - [ ]  Install Docker Desktop if not installed
-    - [ ]  Run Redis via Docker: `docker run -d -p 6379:6379 redis:7-alpine`
-    - [ ]  Create src/redis.ts: create and export ioredis client with connection config
-    - [ ]  Add retry strategy: reconnect every 500ms, max 10 retries
-    - [ ]  Add event listeners: connect, error, reconnecting — log each
-    - [ ]  Create test script: set key, get key, delete key — confirm round trip
-    - [ ]  Test: stop Docker Redis → watch reconnect logs → restart → watch reconnect succeed
+    - [x]  Install ioredis and @types/ioredis (or built-in types)
+    - [x]  Install Docker Desktop if not installed
+    - [x]  Run Redis via Docker: `docker run -d -p 6379:6379 redis:7-alpine`
+    - [x]  Create src/redis.ts: create and export ioredis client with connection config
+    - [x]  Add retry strategy: reconnect every 500ms, max 10 retries
+    - [x]  Add event listeners: connect, error, reconnecting — log each
+    - [x]  Create test script: set key, get key, delete key — confirm round trip
+    - [x]  Test: stop Docker Redis → watch reconnect logs → restart → watch reconnect succeed
 
     **What you learn:**
 
@@ -131,13 +131,13 @@ docker-compose.yml
 
     **What you do:**
 
-    - [ ]  Open Redis CLI: `docker exec -it <container> redis-cli`
-    - [ ]  Practice Sorted Sets: ZADD, ZRANGEBYSCORE, ZREM, ZSCORE, ZCARD
-    - [ ]  Practice Hashes: HSET, HGET, HGETALL, HDEL, HKEYS
-    - [ ]  Practice Strings: SET, GET, SETEX, TTL, DEL
-    - [ ]  Practice Pub/Sub: SUBSCRIBE channel, PUBLISH channel message (two terminal windows)
-    - [ ]  Write src/test/redis-structures.ts exercising all four structures from Node.js
-    - [ ]  Understand the score in Sorted Set = runAt timestamp (milliseconds)
+    - [x]  Open Redis CLI: `docker exec -it <container> redis-cli`
+    - [x]  Practice Sorted Sets: ZADD, ZRANGEBYSCORE, ZREM, ZSCORE, ZCARD
+    - [x]  Practice Hashes: HSET, HGET, HGETALL, HDEL, HKEYS
+    - [x]  Practice Strings: SET, GET, SETEX, TTL, DEL
+    - [x]  Practice Pub/Sub: SUBSCRIBE channel, PUBLISH channel message (two terminal windows)
+    - [x]  Write src/test/redis-structures.ts exercising all four structures from Node.js
+    - [x]  Understand the score in Sorted Set = runAt timestamp (milliseconds)
 
     **What you learn:**
 
@@ -150,12 +150,12 @@ docker-compose.yml
 
     **What you do:**
 
-    - [ ]  Create src/types.ts with all TypeScript interfaces
-    - [ ]  Define Job<T> interface: id, name, data (generic T), status, priority, attempts, maxAttempts, runAt, createdAt, startedAt, completedAt, failedAt, error, progress, heartbeatAt
-    - [ ]  Define JobOptions: delay, priority, attempts, backoff (type: 'fixed'|'exponential', delay: number)
-    - [ ]  Define JobStatus enum: WAITING, ACTIVE, COMPLETED, FAILED, DELAYED
-    - [ ]  Define QueueMetrics: waiting, active, completed, failed, delayed
-    - [ ]  Write a factory function createJob(name, data, options) returning Job
+    - [x]  Create src/types.ts with all TypeScript interfaces
+    - [x]  Define Job<T> interface: id, name, data (generic T), status, priority, attempts, maxAttempts, runAt, createdAt, startedAt, completedAt, failedAt, error, progress, heartbeatAt
+    - [x]  Define JobOptions: delay, priority, attempts, backoff (type: 'fixed'|'exponential', delay: number)
+    - [x]  Define JobStatus enum: WAITING, ACTIVE, COMPLETED, FAILED, DELAYED
+    - [x]  Define QueueMetrics: waiting, active, completed, failed, delayed
+    - [x]  Write a factory function createJob(name, data, options) returning Job
 
     **What you learn:**
 
@@ -167,11 +167,11 @@ docker-compose.yml
 
     **What you do:**
 
-    - [ ]  Create src/keys.ts with all Redis key templates as functions
-    - [ ]  Define: jobKey(queueName, jobId), waitingKey(queueName), activeKey(queueName), failedKey(queueName), completedKey(queueName), metricsKey(queueName), channelKey(queueName)
-    - [ ]  Examples: queue:emails:jobs:{id}, queue:emails:waiting, queue:emails:active
-    - [ ]  Write unit test: call each key function, assert exact string output
-    - [ ]  Understand why consistent key naming prevents bugs in multi-worker environments
+    - [x]  Create src/keys.ts with all Redis key templates as functions
+    - [x]  Define: jobKey(queueName, jobId), waitingKey(queueName), activeKey(queueName), failedKey(queueName), completedKey(queueName), metricsKey(queueName), channelKey(queueName)
+    - [x]  Examples: queue:emails:jobs:{id}, queue:emails:waiting, queue:emails:active
+    - [x]  Write unit test: call each key function, assert exact string output
+    - [x]  Understand why consistent key naming prevents bugs in multi-worker environments
 
     **What you learn:**
 
@@ -183,12 +183,12 @@ docker-compose.yml
 
     **What you do:**
 
-    - [ ]  Install uuid and @types/uuid
-    - [ ]  Create src/utils.ts: generateJobId() returning UUID v4
-    - [ ]  Understand why sequential IDs are dangerous in distributed systems
-    - [ ]  Write a test: generate 10,000 IDs — verify no collisions
-    - [ ]  Add timestamp-prefixed ID option: `${Date.now()}-${uuid()}` — sortable + unique
-    - [ ]  Decide which format to use and document why in a code comment
+    - [x]  Install uuid and @types/uuid
+    - [x]  Create src/utils.ts: generateJobId() returning UUID v4
+    - [x]  Understand why sequential IDs are dangerous in distributed systems
+    - [x]  Write a test: generate 10,000 IDs — verify no collisions
+    - [x]  Add timestamp-prefixed ID option: `${Date.now()}-${uuid()}` — sortable + unique
+    - [x]  Decide which format to use and document why in a code comment
 
     **What you learn:**
 
@@ -200,13 +200,13 @@ docker-compose.yml
 
     **What you do:**
 
-    - [ ]  Install dotenv
-    - [ ]  Create .env: REDIS_URL, QUEUE_DEFAULT_CONCURRENCY, HEARTBEAT_INTERVAL_MS, STALL_THRESHOLD_MS, SCHEDULER_POLL_MS
-    - [ ]  Create .env.example with documented empty values
-    - [ ]  Create src/config.ts: load and validate all env vars with defaults
-    - [ ]  Add startup validation: if REDIS_URL missing, throw clear error before any Redis connection
-    - [ ]  Add .env and .env.example to .gitignore and track .env.example only
-    - [ ]  Test: remove REDIS_URL → confirm startup error message
+    - [x]  Install dotenv
+    - [x]  Create .env: REDIS_URL, QUEUE_DEFAULT_CONCURRENCY, HEARTBEAT_INTERVAL_MS, STALL_THRESHOLD_MS, SCHEDULER_POLL_MS
+    - [x]  Create .env.example with documented empty values
+    - [x]  Create src/config.ts: load and validate all env vars with defaults
+    - [x]  Add startup validation: if REDIS_URL missing, throw clear error before any Redis connection
+    - [x]  Add .env and .env.example to .gitignore and track .env.example only
+    - [x]  Test: remove REDIS_URL → confirm startup error message
 
     **What you learn:**
 
@@ -218,13 +218,13 @@ docker-compose.yml
 
     **What you do:**
 
-    - [ ]  Read: why Lua scripts in Redis are atomic (single-threaded Redis executes whole script)
-    - [ ]  Write first Lua script in Redis CLI: `EVAL "return 'hello from lua'" 0`
-    - [ ]  Write Lua script that reads a key and returns double its value
-    - [ ]  Understand KEYS and ARGV tables in Lua Redis scripts
-    - [ ]  Write Lua script: if key exists and value > 0, decrement and return 1; else return 0 — this is a token bucket
-    - [ ]  Load script using ioredis: `redis.eval(script, numkeys, ...keys, ...args)`
-    - [ ]  Understand SHA caching: SCRIPT LOAD → EVALSHA for repeated calls
+    - [x]  Read: why Lua scripts in Redis are atomic (single-threaded Redis executes whole script)
+    - [x]  Write first Lua script in Redis CLI: `EVAL "return 'hello from lua'" 0`
+    - [x]  Write Lua script that reads a key and returns double its value
+    - [x]  Understand KEYS and ARGV tables in Lua Redis scripts
+    - [x]  Write Lua script: if key exists and value > 0, decrement and return 1; else return 0 — this is a token bucket
+    - [x]  Load script using ioredis: `redis.eval(script, numkeys, ...keys, ...args)`
+    - [x]  Understand SHA caching: SCRIPT LOAD → EVALSHA for repeated calls
 
     **What you learn:**
 
@@ -237,12 +237,12 @@ docker-compose.yml
 
     **What you do:**
 
-    - [ ]  Create scripts/ directory with three empty .lua files: enqueue.lua, moveToActive.lua, moveToFailed.lua
-    - [ ]  Create src/scripts.ts: load all .lua files using fs.readFileSync at startup
-    - [ ]  Use ioredis defineCommand() to register each script as a custom command
-    - [ ]  Write a simple test script: enqueue.lua just sets a test key and returns 'ok'
-    - [ ]  Call the custom command from Node.js and verify it executes
-    - [ ]  Add error handling: if script compilation fails, throw error with script name
+    - [x]  Create scripts/ directory with three empty .lua files: enqueue.lua, moveToActive.lua, moveToFailed.lua
+    - [x]  Create src/scripts.ts: load all .lua files using fs.readFileSync at startup
+    - [x]  Use ioredis defineCommand() to register each script as a custom command
+    - [x]  Write a simple test script: enqueue.lua just sets a test key and returns 'ok'
+    - [x]  Call the custom command from Node.js and verify it executes
+    - [x]  Add error handling: if script compilation fails, throw error with script name
 
     **What you learn:**
 
@@ -259,12 +259,12 @@ docker-compose.yml
 
     **What you do:**
 
-    - [ ]  Write enqueue.lua: accepts jobId, serializedJob, score (runAt timestamp)
-    - [ ]  Script steps: HSET jobs-hash jobId serializedJob → ZADD waiting-sorted-set score jobId
-    - [ ]  Both operations in one script = atomic: either both succeed or neither does
-    - [ ]  Test: enqueue 5 jobs, inspect Redis with CLI — verify both HSET and ZADD happened
-    - [ ]  Test crash simulation: use DEBUG SLEEP in Lua (if available) to understand atomicity
-    - [ ]  Verify: ZRANGEBYSCORE waiting 0 +inf returns all 5 job IDs in order
+    - [x]  Write enqueue.lua: accepts jobId, serializedJob, score (runAt timestamp)
+    - [x]  Script steps: HSET jobs-hash jobId serializedJob → ZADD waiting-sorted-set score jobId
+    - [x]  Both operations in one script = atomic: either both succeed or neither does
+    - [x]  Test: enqueue 5 jobs, inspect Redis with CLI — verify both HSET and ZADD happened
+    - [x]  Test crash simulation: use DEBUG SLEEP in Lua (if available) to understand atomicity
+    - [x]  Verify: ZRANGEBYSCORE waiting 0 +inf returns all 5 job IDs in order
 
     **What you learn:**
 
@@ -276,13 +276,13 @@ docker-compose.yml
 
     **What you do:**
 
-    - [ ]  Create src/Queue.ts with class Queue
-    - [ ]  Constructor: accepts queueName and redis client
-    - [ ]  Implement add(name: string, data: T, options?: JobOptions): Promise<Job<T>>
-    - [ ]  add() should: generate job ID → create Job object → serialize to JSON → call enqueue Lua script
-    - [ ]  Implement getJob(jobId: string): Promise<Job | null> — read from Redis Hash
-    - [ ]  Implement getJobCount(status: JobStatus): Promise<number> — ZCARD or HLEN
-    - [ ]  Write test: add 10 jobs → getJob for each → verify data matches
+    - [x]  Create src/Queue.ts with class Queue
+    - [x]  Constructor: accepts queueName and redis client
+    - [x]  Implement add(name: string, data: T, options?: JobOptions): Promise<Job<T>>
+    - [x]  add() should: generate job ID → create Job object → serialize to JSON → call enqueue Lua script
+    - [x]  Implement getJob(jobId: string): Promise<Job | null> — read from Redis Hash
+    - [x]  Implement getJobCount(status: JobStatus): Promise<number> — ZCARD or HLEN
+    - [x]  Write test: add 10 jobs → getJob for each → verify data matches
 
     **What you learn:**
 
@@ -294,11 +294,11 @@ docker-compose.yml
 
     **What you do:**
 
-    - [ ]  Create three Sorted Sets per queue: waiting:high, waiting:normal, waiting:low
-    - [ ]  Update enqueue.lua: route to correct Sorted Set based on priority option
-    - [ ]  Update Queue.add() to pass priority to script
-    - [ ]  Update key functions in keys.ts for priority variants
-    - [ ]  Test: add 5 low, 5 normal, 5 high priority jobs — verify counts in each set
+    - [x]  Create three Sorted Sets per queue: waiting:high, waiting:normal, waiting:low
+    - [x]  Update enqueue.lua: route to correct Sorted Set based on priority option
+    - [x]  Update Queue.add() to pass priority to script
+    - [x]  Update key functions in keys.ts for priority variants
+    - [x]  Test: add 5 low, 5 normal, 5 high priority jobs — verify counts in each set
 
     **What you learn:**
 
@@ -309,11 +309,11 @@ docker-compose.yml
 
     **What you do:**
 
-    - [ ]  Update Queue.add(): if options.delay provided, set runAt = [Date.now](http://Date.now)() + delay
-    - [ ]  Delayed jobs land in waiting Sorted Set with future timestamp as score
-    - [ ]  Write test: add job with 5s delay → ZRANGEBYSCORE waiting 0 [Date.now](http://Date.now)() → job NOT in results → wait 5s → same query → job NOW in results
-    - [ ]  Understand: Sorted Set score is the exact mechanism enabling delayed jobs — no extra structure needed
-    - [ ]  Add Queue.getDelayedJobs(): returns jobs where score > [Date.now](http://Date.now)()
+    - [x]  Update Queue.add(): if options.delay provided, set runAt = [Date.now](http://Date.now)() + delay
+    - [x]  Delayed jobs land in waiting Sorted Set with future timestamp as score
+    - [x]  Write test: add job with 5s delay → ZRANGEBYSCORE waiting 0 [Date.now](http://Date.now)() → job NOT in results → wait 5s → same query → job NOW in results
+    - [x]  Understand: Sorted Set score is the exact mechanism enabling delayed jobs — no extra structure needed
+    - [x]  Add Queue.getDelayedJobs(): returns jobs where score > [Date.now](http://Date.now)()
 
     **What you learn:**
 
@@ -325,11 +325,11 @@ docker-compose.yml
 
     **What you do:**
 
-    - [ ]  Write moveToActive.lua: ZRANGEBYSCORE to find one ready job → ZREM from waiting → HSET into active hash with startedAt + heartbeatAt timestamps
-    - [ ]  If no ready job: return nil (worker knows queue is empty)
-    - [ ]  The entire script is atomic: no two workers can pick up the same job
-    - [ ]  Test with single worker: call script 5 times for 5 jobs — each returns different job
-    - [ ]  Test concurrent safety manually: simulate two workers calling simultaneously (will test properly in Phase 22)
+    - [x]  Write moveToActive.lua: ZRANGEBYSCORE to find one ready job → ZREM from waiting → HSET into active hash with startedAt + heartbeatAt timestamps
+    - [x]  If no ready job: return nil (worker knows queue is empty)
+    - [x]  The entire script is atomic: no two workers can pick up the same job
+    - [x]  Test with single worker: call script 5 times for 5 jobs — each returns different job
+    - [x]  Test concurrent safety manually: simulate two workers calling simultaneously (will test properly in Phase 22)
 
     **What you learn:**
 
@@ -341,13 +341,13 @@ docker-compose.yml
 
     **What you do:**
 
-    - [ ]  Create src/Worker.ts with class Worker
-    - [ ]  Constructor: queueName, processor function, options (concurrency: number)
-    - [ ]  Implement start(): begins poll loop
-    - [ ]  Implement stop(): graceful shutdown — finish active jobs, stop polling
-    - [ ]  Poll loop: call moveToActive Lua script → if job returned, process it → if null, wait pollInterval ms
-    - [ ]  Implement processJob(job): call user's processor function → handle success/failure
-    - [ ]  Test: add 3 jobs → start worker → verify all 3 processed
+    - [x]  Create src/Worker.ts with class Worker
+    - [x]  Constructor: queueName, processor function, options (concurrency: number)
+    - [x]  Implement start(): begins poll loop
+    - [x]  Implement stop(): graceful shutdown — finish active jobs, stop polling
+    - [x]  Poll loop: call moveToActive Lua script → if job returned, process it → if null, wait pollInterval ms
+    - [x]  Implement processJob(job): call user's processor function → handle success/failure
+    - [x]  Test: add 3 jobs → start worker → verify all 3 processed
 
     **What you learn:**
 
@@ -359,12 +359,12 @@ docker-compose.yml
 
     **What you do:**
 
-    - [ ]  Write moveToCompleted.lua: HDEL from active hash → HSET into completed hash with completedAt
-    - [ ]  Update Worker: after successful processor call → run moveToCompleted script
-    - [ ]  Add completed Sorted Set with completedAt as score (for time-based queries)
-    - [ ]  Implement Queue.getCompletedJobs(limit): returns N most recent completed jobs
-    - [ ]  Test: process 5 jobs → check completed count → verify job data in completed hash
-    - [ ]  Add job retention: completed jobs older than 24h auto-delete (set TTL on completed hash)
+    - [x]  Write moveToCompleted.lua: HDEL from active hash → HSET into completed hash with completedAt
+    - [x]  Update Worker: after successful processor call → run moveToCompleted script
+    - [x]  Add completed Sorted Set with completedAt as score (for time-based queries)
+    - [x]  Implement Queue.getCompletedJobs(limit): returns N most recent completed jobs
+    - [x]  Test: process 5 jobs → check completed count → verify job data in completed hash
+    - [x]  Add job retention: completed jobs older than 24h auto-delete (set TTL on completed hash)
 
     **What you learn:**
 
@@ -375,12 +375,12 @@ docker-compose.yml
 
     **What you do:**
 
-    - [ ]  Write moveToFailed.lua: HDEL from active → if attempts < maxAttempts: ZADD back to waiting with backoff delay as score → else: ZADD to failed Sorted Set with failedAt
-    - [ ]  Implement backoff calculation in TypeScript: fixed delay vs exponential (delay * 2^attempt)
-    - [ ]  Update Worker: on processor throw → increment attempts → run moveToFailed script
-    - [ ]  Test fixed backoff: job fails → appears in waiting with future score → worker picks up after delay
-    - [ ]  Test exponential: attempt 1 = 1s, attempt 2 = 2s, attempt 3 = 4s
-    - [ ]  Test maxAttempts: after N failures → job lands in failed Sorted Set (DLQ)
+    - [x]  Write moveToFailed.lua: HDEL from active → if attempts < maxAttempts: ZADD back to waiting with backoff delay as score → else: ZADD to failed Sorted Set with failedAt
+    - [x]  Implement backoff calculation in TypeScript: fixed delay vs exponential (delay * 2^attempt)
+    - [x]  Update Worker: on processor throw → increment attempts → run moveToFailed script
+    - [x]  Test fixed backoff: job fails → appears in waiting with future score → worker picks up after delay
+    - [x]  Test exponential: attempt 1 = 1s, attempt 2 = 2s, attempt 3 = 4s
+    - [x]  Test maxAttempts: after N failures → job lands in failed Sorted Set (DLQ)
 
     **What you learn:**
 
@@ -392,12 +392,12 @@ docker-compose.yml
 
     **What you do:**
 
-    - [ ]  Update Worker: when processor throws, capture error.message and error.stack
-    - [ ]  Store error payload in job data: { message, stack, failedAt, attemptNumber }
-    - [ ]  Update moveToFailed.lua to include serialized error in job Hash
-    - [ ]  Add Queue.getFailedJobs(limit): returns jobs from failed Sorted Set with error details
-    - [ ]  Test: write a processor that always throws with specific message → verify error captured in Redis
-    - [ ]  Test: write a processor that throws on attempt 1-2 but succeeds on attempt 3 → verify eventual success
+    - [x]  Update Worker: when processor throws, capture error.message and error.stack
+    - [x]  Store error payload in job data: { message, stack, failedAt, attemptNumber }
+    - [x]  Update moveToFailed.lua to include serialized error in job Hash
+    - [x]  Add Queue.getFailedJobs(limit): returns jobs from failed Sorted Set with error details
+    - [x]  Test: write a processor that always throws with specific message → verify error captured in Redis
+    - [x]  Test: write a processor that throws on attempt 1-2 but succeeds on attempt 3 → verify eventual success
 
     **What you learn:**
 
@@ -409,12 +409,12 @@ docker-compose.yml
 
     **What you do:**
 
-    - [ ]  Implement Queue.getMetrics(): returns QueueMetrics object
-    - [ ]  Use Redis pipeline (MULTI/EXEC) to fetch all counts in one round trip
-    - [ ]  Counts: ZCARD waiting:high, ZCARD waiting:normal, ZCARD waiting:low, HLEN active, ZCARD completed, ZCARD failed
-    - [ ]  Add throughput tracking: completed/min using a sliding window counter in Redis
-    - [ ]  Sliding window: ZADD throughput:completions <timestamp> <jobId> → ZCOUNT with 1-minute range
-    - [ ]  Test: add 20 jobs, process 15, fail 5 → verify metrics match
+    - [x]  Implement Queue.getMetrics(): returns QueueMetrics object
+    - [x]  Use Redis pipeline (MULTI/EXEC) to fetch all counts in one round trip
+    - [x]  Counts: ZCARD waiting:high, ZCARD waiting:normal, ZCARD waiting:low, HLEN active, ZCARD completed, ZCARD failed
+    - [x]  Add throughput tracking: completed/min using a sliding window counter in Redis
+    - [x]  Sliding window: ZADD throughput:completions <timestamp> <jobId> → ZCOUNT with 1-minute range
+    - [x]  Test: add 20 jobs, process 15, fail 5 → verify metrics match
 
     **What you learn:**
 
@@ -431,12 +431,12 @@ docker-compose.yml
 
     **What you do:**
 
-    - [ ]  Add concurrency limit to Worker class (default: 1)
-    - [ ]  Implement semaphore: a counter `activeCount` gating how many jobs run simultaneously
-    - [ ]  Poll loop logic: if activeCount >= concurrency → don't fetch new job → wait pollInterval
-    - [ ]  On job start: activeCount++ | On job finish (success or fail): activeCount--
-    - [ ]  Test concurrency: 3 — add 20 jobs with 200ms delay each → verify max 3 run at same time
-    - [ ]  Log activeCount in each iteration to confirm it never exceeds limit
+    - [x]  Add concurrency limit to Worker class (default: 1)
+    - [x]  Implement semaphore: a counter `activeCount` gating how many jobs run simultaneously
+    - [x]  Poll loop logic: if activeCount >= concurrency → don't fetch new job → wait pollInterval
+    - [x]  On job start: activeCount++ | On job finish (success or fail): activeCount--
+    - [x]  Test concurrency: 3 — add 20 jobs with 200ms delay each → verify max 3 run at same time
+    - [x]  Log activeCount in each iteration to confirm it never exceeds limit
 
     **What you learn:**
 
@@ -448,11 +448,11 @@ docker-compose.yml
 
     **What you do:**
 
-    - [ ]  When worker picks up a job: set heartbeatAt = [Date.now](http://Date.now)() in active Hash
-    - [ ]  Create heartbeat loop: every HEARTBEAT_INTERVAL_MS (default 5s), update heartbeatAt for all active jobs
-    - [ ]  Use ioredis pipeline to update all active job heartbeats in one round trip
-    - [ ]  Add heartbeat loop to Worker.start() and stop to Worker.stop()
-    - [ ]  Test: start worker, process a slow job (artificial setTimeout) → watch heartbeatAt update in Redis CLI every 5s
+    - [x]  When worker picks up a job: set heartbeatAt = [Date.now](http://Date.now)() in active Hash
+    - [x]  Create heartbeat loop: every HEARTBEAT_INTERVAL_MS (default 5s), update heartbeatAt for all active jobs
+    - [x]  Use ioredis pipeline to update all active job heartbeats in one round trip
+    - [x]  Add heartbeat loop to Worker.start() and stop to Worker.stop()
+    - [x]  Test: start worker, process a slow job (artificial setTimeout) → watch heartbeatAt update in Redis CLI every 5s
 
     **What you learn:**
 
@@ -464,12 +464,12 @@ docker-compose.yml
 
     **What you do:**
 
-    - [ ]  Create src/Watchdog.ts with class Watchdog
-    - [ ]  Watchdog runs independently: every WATCHDOG_INTERVAL_MS (default 10s)
-    - [ ]  Scan all jobs in active Hash: HGETALL active
-    - [ ]  For each job: check heartbeatAt — if now - heartbeatAt > STALL_THRESHOLD_MS (default 30s) → job is stalled
-    - [ ]  Stalled job: increment attempts → run moveToFailed Lua script with error: "Job stalled — worker likely crashed"
-    - [ ]  Test: start job → kill worker process mid-execution → wait 30s → verify job moves back to waiting
+    - [x]  Create src/Watchdog.ts with class Watchdog
+    - [x]  Watchdog runs independently: every WATCHDOG_INTERVAL_MS (default 10s)
+    - [x]  Scan all jobs in active Hash: HGETALL active
+    - [x]  For each job: check heartbeatAt — if now - heartbeatAt > STALL_THRESHOLD_MS (default 30s) → job is stalled
+    - [x]  Stalled job: increment attempts → run moveToFailed Lua script with error: "Job stalled — worker likely crashed"
+    - [x]  Test: start job → kill worker process mid-execution → wait 30s → verify job moves back to waiting
 
     **What you learn:**
 
@@ -481,10 +481,10 @@ docker-compose.yml
 
     **What you do:**
 
-    - [ ]  Write recoverStalledJob.lua: check heartbeatAt in active Hash → if stale: HDEL from active → ZADD back to waiting with incremented attempt count
-    - [ ]  Replace Node.js-level stall recovery with this Lua script
-    - [ ]  Understand why this matters: without Lua, Watchdog reads then deletes — race condition between read and delete
-    - [ ]  Test with two Watchdog instances running simultaneously: verify job recovered exactly once
+    - [x]  Write recoverStalledJob.lua: check heartbeatAt in active Hash → if stale: HDEL from active → ZADD back to waiting with incremented attempt count
+    - [x]  Replace Node.js-level stall recovery with this Lua script
+    - [x]  Understand why this matters: without Lua, Watchdog reads then deletes — race condition between read and delete
+    - [x]  Test with two Watchdog instances running simultaneously: verify job recovered exactly once
 
     **What you learn:**
 
@@ -496,12 +496,12 @@ docker-compose.yml
 
     **What you do:**
 
-    - [ ]  Implement adaptive backoff in Worker poll loop
-    - [ ]  If last poll returned a job: poll again immediately (queue might have more)
-    - [ ]  If last poll returned null: double the wait time (up to MAX_POLL_INTERVAL, default 5s)
-    - [ ]  If worker just processed a job: reset backoff to minimum
-    - [ ]  Test: add 20 jobs rapidly → worker processes fast with no backoff → queue empties → backoff kicks in → add more jobs → backoff resets
-    - [ ]  Measure: compare CPU usage with fixed 500ms poll vs adaptive — adaptive uses far less CPU on idle queues
+    - [x]  Implement adaptive backoff in Worker poll loop
+    - [x]  If last poll returned a job: poll again immediately (queue might have more)
+    - [x]  If last poll returned null: double the wait time (up to MAX_POLL_INTERVAL, default 5s)
+    - [x]  If worker just processed a job: reset backoff to minimum
+    - [x]  Test: add 20 jobs rapidly → worker processes fast with no backoff → queue empties → backoff kicks in → add more jobs → backoff resets
+    - [x]  Measure: compare CPU usage with fixed 500ms poll vs adaptive — adaptive uses far less CPU on idle queues
 
     **What you learn:**
 
@@ -513,12 +513,12 @@ docker-compose.yml
 
     **What you do:**
 
-    - [ ]  Add job.updateProgress(percent: number) method
-    - [ ]  updateProgress: HSET jobs:{jobId} progress percent
-    - [ ]  Worker passes job object to processor function so processor can call job.updateProgress()
-    - [ ]  Publish progress event to Redis Pub/Sub channel: queue:{name}:events
-    - [ ]  Event payload: { event: 'progress', jobId, progress, queueName }
-    - [ ]  Test: write processor that calls updateProgress(25), (50), (75), (100) — verify Redis values update
+    - [x]  Add job.updateProgress(percent: number) method
+    - [x]  updateProgress: HSET jobs:{jobId} progress percent
+    - [x]  Worker passes job object to processor function so processor can call job.updateProgress()
+    - [x]  Publish progress event to Redis Pub/Sub channel: queue:{name}:events
+    - [x]  Event payload: { event: 'progress', jobId, progress, queueName }
+    - [x]  Test: write processor that calls updateProgress(25), (50), (75), (100) — verify Redis values update
 
     **What you learn:**
 
@@ -530,12 +530,12 @@ docker-compose.yml
 
     **What you do:**
 
-    - [ ]  Create src/EventEmitter.ts wrapping Redis Pub/Sub
-    - [ ]  Define all event types: job:completed, job:failed, job:progress, job:active, job:stalled
-    - [ ]  Every state transition in Worker + Watchdog publishes to queue:{name}:events channel
-    - [ ]  Event payload: { event, jobId, data, timestamp, queueName, workerPid }
-    - [ ]  Create subscriber connection (separate ioredis instance — Pub/Sub blocks the connection)
-    - [ ]  Test: run subscriber, process jobs, verify events arrive with correct payloads
+    - [x]  Create src/EventEmitter.ts wrapping Redis Pub/Sub
+    - [x]  Define all event types: job:completed, job:failed, job:progress, job:active, job:stalled
+    - [x]  Every state transition in Worker + Watchdog publishes to queue:{name}:events channel
+    - [x]  Event payload: { event, jobId, data, timestamp, queueName, workerPid }
+    - [x]  Create subscriber connection (separate ioredis instance — Pub/Sub blocks the connection)
+    - [x]  Test: run subscriber, process jobs, verify events arrive with correct payloads
 
     **What you learn:**
 
@@ -547,11 +547,11 @@ docker-compose.yml
 
     **What you do:**
 
-    - [ ]  Write tokenBucket.lua: check current tokens and lastRefill → refill tokens based on time elapsed → if tokens > 0: decrement and return 1 → else: return 0 (rate limited)
-    - [ ]  Create src/RateLimiter.ts: wraps tokenBucket.lua with queue-level rate limiting
-    - [ ]  Integrate into Worker: before picking up job → check rate limit → if limited, wait
-    - [ ]  Configure per queue: maxJobsPerInterval, interval (e.g., 100 jobs per minute)
-    - [ ]  Test: set limit to 5/second → add 20 jobs → verify processed at ~5/second rate
+    - [x]  Write tokenBucket.lua: check current tokens and lastRefill → refill tokens based on time elapsed → if tokens > 0: decrement and return 1 → else: return 0 (rate limited)
+    - [x]  Create src/RateLimiter.ts: wraps tokenBucket.lua with queue-level rate limiting
+    - [x]  Integrate into Worker: before picking up job → check rate limit → if limited, wait
+    - [x]  Configure per queue: maxJobsPerInterval, interval (e.g., 100 jobs per minute)
+    - [x]  Test: set limit to 5/second → add 20 jobs → verify processed at ~5/second rate
 
     **What you learn:**
 
@@ -563,12 +563,12 @@ docker-compose.yml
 
     **What you do:**
 
-    - [ ]  Create src/Scheduler.ts — runs a poll loop every SCHEDULER_POLL_MS (default 500ms)
-    - [ ]  Write promoteDelayedJobs.lua: ZRANGEBYSCORE waiting -inf <now> LIMIT 0 100 → for each job: change score to 0 (promote to immediate)
-    - [ ]  Actually: delayed and immediate jobs are already in same Sorted Set — scheduler just wakes up workers
-    - [ ]  Simpler: Scheduler publishes 'jobs:ready' event → workers check queue
-    - [ ]  Test: add 5 jobs with 3s delay → Scheduler promotes them after 3s → worker processes
-    - [ ]  Measure: job runs within SCHEDULER_POLL_MS of its scheduled time
+    - [x]  Create src/Scheduler.ts — runs a poll loop every SCHEDULER_POLL_MS (default 500ms)
+    - [x]  Write promoteDelayedJobs.lua: ZRANGEBYSCORE waiting -inf <now> LIMIT 0 100 → for each job: change score to 0 (promote to immediate)
+    - [x]  Actually: delayed and immediate jobs are already in same Sorted Set — scheduler just wakes up workers
+    - [x]  Simpler: Scheduler publishes 'jobs:ready' event → workers check queue
+    - [x]  Test: add 5 jobs with 3s delay → Scheduler promotes them after 3s → worker processes
+    - [x]  Measure: job runs within SCHEDULER_POLL_MS of its scheduled time
 
     **What you learn:**
 
@@ -602,13 +602,13 @@ docker-compose.yml
 
     **What you do:**
 
-    - [ ]  Install express, [socket.io](http://socket.io), @types/express
-    - [ ]  Create dashboard/server.ts: Express server on port 3002
-    - [ ]  Serve dashboard/index.html as static file
-    - [ ]  Initialize [Socket.IO](http://Socket.IO) server on same Express app
-    - [ ]  Subscribe to Redis Pub/Sub channel: queue:*:events (all queues)
-    - [ ]  On each Redis event: emit to all [Socket.IO](http://Socket.IO) clients with [socket.io](http://socket.io).emit('job-event', data)
-    - [ ]  Test: start dashboard server → open http://localhost:3002 → run jobs → open browser console → confirm events arriving
+    - [x]  Install express, [socket.io](http://socket.io), @types/express
+    - [x]  Create dashboard/server.ts: Express server on port 3002
+    - [x]  Serve dashboard/index.html as static file
+    - [x]  Initialize [Socket.IO](http://Socket.IO) server on same Express app
+    - [x]  Subscribe to Redis Pub/Sub channel: queue:*:events (all queues)
+    - [x]  On each Redis event: emit to all [Socket.IO](http://Socket.IO) clients with [socket.io](http://socket.io).emit('job-event', data)
+    - [x]  Test: start dashboard server → open http://localhost:3002 → run jobs → open browser console → confirm events arriving
 
     **What you learn:**
 
@@ -620,14 +620,14 @@ docker-compose.yml
 
     **What you do:**
 
-    - [ ]  Create dashboard/routes.ts
-    - [ ]  GET /api/queues — list all queue names (from Redis key scan with pattern queue:*:waiting)
-    - [ ]  GET /api/queues/:name/metrics — call Queue.getMetrics()
-    - [ ]  GET /api/queues/:name/jobs/:status — paginated job list (limit + offset)
-    - [ ]  GET /api/queues/:name/jobs/:jobId — single job detail
-    - [ ]  POST /api/queues/:name/jobs/:jobId/retry — move failed job back to waiting
-    - [ ]  DELETE /api/queues/:name/jobs/failed — clear all failed jobs
-    - [ ]  Test all endpoints with Thunder Client or curl
+    - [x]  Create dashboard/routes.ts
+    - [x]  GET /api/queues — list all queue names (from Redis key scan with pattern queue:*:waiting)
+    - [x]  GET /api/queues/:name/metrics — call Queue.getMetrics()
+    - [x]  GET /api/queues/:name/jobs/:status — paginated job list (limit + offset)
+    - [x]  GET /api/queues/:name/jobs/:jobId — single job detail
+    - [x]  POST /api/queues/:name/jobs/:jobId/retry — move failed job back to waiting
+    - [x]  DELETE /api/queues/:name/jobs/failed — clear all failed jobs
+    - [x]  Test all endpoints with Thunder Client or curl
 
     **What you learn:**
 
@@ -635,17 +635,17 @@ docker-compose.yml
     - What pagination means in API design: never return unbounded lists
     - What Redis SCAN is: iterates keys without blocking (unlike KEYS which blocks)
     - Why manual retry from dashboard is essential for operations teams
-- Phase 33 — Dashboard HTML + [Socket.IO](http://Socket.IO) Client
+- [x] Phase 33 — Dashboard HTML + [Socket.IO](http://Socket.IO) Client
 
     **What you do:**
 
-    - [ ]  Create dashboard/index.html — full single-file dashboard
-    - [ ]  Add [Socket.IO](http://Socket.IO) client via CDN: <script src="/[socket.io/socket.io.js](http://socket.io/socket.io.js)">
-    - [ ]  Show queue selector dropdown (populated from GET /api/queues)
-    - [ ]  Show metrics cards: Waiting, Active, Completed, Failed, Throughput/min
-    - [ ]  Update metric numbers in real-time as [Socket.IO](http://Socket.IO) events arrive
-    - [ ]  Add live job feed: last 20 events as list with job name, status, duration
-    - [ ]  Test: run 50 jobs → watch dashboard update without page refresh
+    - [x] Create dashboard/index.html — (Implemented as React App for better scalability)
+    - [x] Add [Socket.IO](http://Socket.IO) client via CDN: <script src="/[socket.io/socket.io.js](http://socket.io/socket.io.js)"> (Implemented via npm package)
+    - [x] Show queue selector dropdown (populated from GET /api/queues)
+    - [x] Show metrics cards: Waiting, Active, Completed, Failed, Throughput/min
+    - [x] Update metric numbers in real-time as [Socket.IO](http://Socket.IO) events arrive
+    - [x] Add live job feed: last 20 events as list with job name, status, duration
+    - [x] Test: run 50 jobs → watch dashboard update without page refresh
 
     **What you learn:**
 
@@ -653,17 +653,17 @@ docker-compose.yml
     - How to update DOM in real-time without frameworks
     - What long-polling fallback means: [Socket.IO](http://Socket.IO) falls back to HTTP polling if WebSockets blocked
     - Why a single HTML file dashboard is simpler to deploy than a React app
-- Phase 34 — Job List with Filtering & Pagination
+- [x] Phase 34 — Job List with Filtering & Pagination
 
     **What you do:**
 
-    - [ ]  Add tabbed UI: Waiting / Active / Completed / Failed
-    - [ ]  Each tab calls GET /api/queues/:name/jobs/:status with page param
-    - [ ]  Waiting jobs table: columns — Job Name, Priority, Scheduled At, Attempts
-    - [ ]  Active jobs table: Job Name, Started At, Heartbeat (color red if stale), Worker PID
-    - [ ]  Completed jobs table: Job Name, Duration, Completed At, Quality Score
-    - [ ]  Failed jobs table: Job Name, Error Message, Failed At, Retry button
-    - [ ]  Add pagination controls: Previous / Next
+    - [x] Add tabbed UI: Waiting / Active / Completed / Failed
+    - [x] Each tab calls GET /api/queues/:name/jobs/:status with page param
+    - [x] Waiting jobs table: columns — Job Name, Priority, Scheduled At, Attempts
+    - [x] Active jobs table: Job Name, Started At, Heartbeat (color red if stale), Worker PID
+    - [x] Completed jobs table: Job Name, Duration, Completed At, Quality Score
+    - [x] Failed jobs table: Job Name, Error Message, Failed At, Retry button
+    - [x] Add pagination controls: Previous / Next (Impl. as "Load More" for better infinite scroll feel)
 
     **What you learn:**
 
@@ -961,10 +961,10 @@ docker-compose.yml
 
 | Phase Group | Phases | Status |
 | --- | --- | --- |
-| 🏗️ Foundation | 1–10 | Not Started |
-| ⚙️ Core Queue | 11–20 | Not Started |
-| 🔄 Concurrency & Reliability | 21–30 | Not Started |
-| 📊 Dashboard | 31–38 | Not Started |
+| 🏗️ Foundation | 1–10 | Completed |
+| ⚙️ Core Queue | 11–20 | Completed |
+| 🔄 Concurrency & Reliability | 21–30 | In Progress (29/30) |
+| 📊 Dashboard | 31–38 | In Progress (32/38) |
 | 🧪 Testing & Hardening | 39–44 | Not Started |
 | 🐳 Docker & Portfolio | 45–50 | Not Started |
 

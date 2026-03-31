@@ -276,22 +276,27 @@ export class Queue<T = any> extends EventEmitter {
   }
 
   /**
-   * Lists job IDs from a given status set ('waiting','delayed','active','completed','failed','cancelled').
+   * Lists job IDs from a given status set with pagination support (start and limit).
    */
-  async getJobsByStatus(status: string, limit: number = 20): Promise<string[]> {
+  async getJobsByStatus(status: string, start: number = 0, limit: number = 20): Promise<string[]> {
+    const end = start + limit - 1;
     switch (status) {
       case 'waiting':
-        return this.redis.zrange(waitingKey(this.queueName), 0, limit - 1);
+        return this.redis.zrange(waitingKey(this.queueName), start, end);
       case 'delayed':
-        return this.redis.zrange(delayedKey(this.queueName), 0, limit - 1);
+        return this.redis.zrange(delayedKey(this.queueName), start, end);
       case 'active':
-        return this.redis.hkeys(activeKey(this.queueName));
+        // Note: Active jobs are in a Hash, so pagination is less direct than Sorted Sets.
+        // For Active, we usually just return everything or use HSCAN if very large.
+        // For now, we'll slice the keys array.
+        const keys = await this.redis.hkeys(activeKey(this.queueName));
+        return keys.slice(start, start + limit);
       case 'completed':
-        return this.redis.zrevrange(completedKey(this.queueName), 0, limit - 1);
+        return this.redis.zrevrange(completedKey(this.queueName), start, end);
       case 'failed':
-        return this.redis.zrevrange(failedKey(this.queueName), 0, limit - 1);
+        return this.redis.zrevrange(failedKey(this.queueName), start, end);
       case 'cancelled':
-        return this.redis.zrevrange(cancelledKey(this.queueName), 0, limit - 1);
+        return this.redis.zrevrange(cancelledKey(this.queueName), start, end);
       default:
         return [];
     }

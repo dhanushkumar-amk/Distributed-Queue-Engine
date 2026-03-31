@@ -51,7 +51,8 @@ export function createQueueRouter(registry: Record<string, Queue>): Router {
     if (!queue) return;
 
     const status = String(req.query.status || 'waiting');
-    const limit = Math.min(parseInt(String(req.query.limit || '20')), 100);
+    const start = Math.max(parseInt(String(req.query.start || '0')), 0);
+    const limit = Math.min(Math.max(parseInt(String(req.query.limit || '20')), 1), 100);
     const valid = ['waiting', 'delayed', 'active', 'completed', 'failed', 'cancelled'];
 
     if (!valid.includes(status)) {
@@ -60,9 +61,9 @@ export function createQueueRouter(registry: Record<string, Queue>): Router {
     }
 
     try {
-      const ids = await queue.getJobsByStatus(status, limit);
+      const ids = await queue.getJobsByStatus(status, start, limit);
       const jobs = (await Promise.all(ids.map(id => queue.getJob(id)))).filter(Boolean);
-      res.json({ queue: name, status, count: jobs.length, jobs });
+      res.json({ queue: name, status, start, limit, count: jobs.length, jobs });
     } catch (err: any) {
       res.status(500).json({ error: err.message });
     }

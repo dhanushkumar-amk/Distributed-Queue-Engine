@@ -45,3 +45,7 @@ export function metricsKey(queueName: string): string {
 export function channelKey(queueName: string): string {
   return `${PREFIX}:${queueName}:events`;
 }
+
+export function throughputKey(queueName: string, type: 'completed' | 'failed', minuteTimestamp: number): string {
+  return `${PREFIX}:${queueName}:throughput:${type}:${minuteTimestamp}`;
+}

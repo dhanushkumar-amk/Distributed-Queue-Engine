@@ -1,6 +1,7 @@
 -- KEYS[1]: jobKey (queue:name:jobs:id)
 -- KEYS[2]: activeKey (queue:name:active)
 -- KEYS[3]: completedKey (queue:name:completed)
+-- KEYS[4]: throughputKey (queue:name:throughput:completed:minute)
 -- ARGV[1]: jobId
 -- ARGV[2]: now (Current timestamp in ms)
 
@@ -20,5 +21,9 @@ redis.call("ZADD", KEYS[3], ARGV[2], ARGV[1])
 -- 86,400,000 ms = 24 hours
 local expiration = tonumber(ARGV[2]) - 86400000
 redis.call("ZREMRANGEBYSCORE", KEYS[3], "-inf", expiration)
+
+-- 5. Increment throughput counter
+redis.call("INCR", KEYS[4])
+redis.call("PEXPIRE", KEYS[4], 86400000)
 
 return 1
