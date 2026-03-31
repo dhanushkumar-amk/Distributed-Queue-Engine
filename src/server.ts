@@ -6,6 +6,7 @@ import redis from './redis';
 import { loadScripts } from './scripts';
 import { Queue } from './Queue';
 import { Worker } from './Worker';
+import { Scheduler } from './Scheduler';
 import { createQueueRouter } from './api';
 
 const PORT = process.env.PORT ? parseInt(process.env.PORT) : 3000;
@@ -29,8 +30,10 @@ async function main() {
 
   // Step 3: Example workers (in production these would be in separate processes)
   const emailWorker = new Worker('emails', async (job) => {
-    console.log(`[Email Worker] Processing: ${job.name}`, job.data);
-    await new Promise(r => setTimeout(r, 300)); // simulate work
+    // Phase 36 test: random duration so p50/p95/p99 are meaningfully different
+    const delay = Math.floor(Math.random() * 1950) + 50; // 50ms – 2000ms
+    console.log(`[Email Worker] Processing: ${job.name} (simulated ${delay}ms)`, job.data);
+    await new Promise(r => setTimeout(r, delay));
   }, redis, { concurrency: 3 });
 
   const multiWorker = new Worker(
@@ -52,6 +55,19 @@ async function main() {
     q.startCleanup({ maxCount: 500, maxAge: 24 * 60 * 60 * 1000, intervalMs: 60_000 });
     q.startWatchdog(30_000, 60_000);
   });
+
+  // Step 4b: Start Scheduler for cron/repeatable jobs
+  const scheduler = new Scheduler(redis, Object.values(queues), 500);
+  scheduler.start();
+
+  // Register a sample repeatable job — runs every 10 seconds (for testing)
+  // Expression "*/10 * * * * *" = every 10 seconds (6-field with seconds)
+  await queues['reports'].addRepeatable(
+    'daily-summary',
+    { type: 'summary', time: 'auto' },
+    '*/10 * * * * *',       // every 10 seconds — change to "0 0 * * *" for daily
+    { attempts: 2, priority: 'normal' }
+  );
 
   // Step 5: Build Express & Socket.IO app
   const app = express();
@@ -116,6 +132,7 @@ async function main() {
   // Graceful shutdown
   process.on('SIGINT', async () => {
     console.log('\n🛑 Shutting down...');
+    scheduler.stop();
     await emailWorker.stop();
     await multiWorker.stop();
     Object.values(queues).forEach(q => { q.stopCleanup(); q.stopWatchdog(); });

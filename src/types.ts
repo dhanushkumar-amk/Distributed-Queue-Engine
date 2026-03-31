@@ -71,6 +71,28 @@ export interface QueueMetrics {
   failed: number;
   delayed: number;
   cancelled: number;
+  /** p50 processing latency in ms (median), null when no data */
+  p50: number | null;
+  /** p95 processing latency in ms, null when no data */
+  p95: number | null;
+  /** p99 processing latency in ms, null when no data */
+  p99: number | null;
+}
+
+/** Describes a repeatable (cron) job stored in Redis */
+export interface RepeatableJobDef {
+  /** Unique name used as the key in Redis — also prevents duplicates */
+  name: string;
+  // Cron expression, e.g. every 10 seconds: "* /10 * * * *" (no space)
+  cron: string;
+  /** The job data payload to enqueue each time */
+  data: any;
+  /** Job options like attempts, priority */
+  options?: JobOptions;
+  /** Unix ms — when this job should next run */
+  nextRunAt: number;
+  /** When it was registered */
+  createdAt: number;
 }
 
 /**

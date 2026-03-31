@@ -1,14 +1,15 @@
 import { Redis } from 'ioredis';
 import { EventEmitter } from 'events';
 import { generateJobId } from './utils';
-import { createJob, hydrateJob, Job, JobOptions, JobStatus, QueueMetrics, CleanupOptions } from './types';
-import { jobKey, waitingKey, delayedKey, activeKey, channelKey, completedKey, failedKey, cancelledKey } from './keys';
+import { createJob, hydrateJob, Job, JobOptions, JobStatus, QueueMetrics, CleanupOptions, RepeatableJobDef } from './types';
+import { jobKey, waitingKey, delayedKey, activeKey, channelKey, completedKey, failedKey, cancelledKey, cronKey, latencyKey } from './keys';
+import { CronExpressionParser } from 'cron-parser';
 
 /**
  * High-level Queue class to interact with Redis and the Lua scripts.
  */
 export class Queue<T = any> extends EventEmitter {
-  private redis: Redis;
+  protected redis: Redis;
   private queueName: string;
   private watchdogTimer?: NodeJS.Timeout;
   private cleanupTimer?: NodeJS.Timeout;
@@ -94,33 +95,53 @@ export class Queue<T = any> extends EventEmitter {
 
   /**
    * Retrieves comprehensive metrics for the queue using a single pipeline call.
+   * Also computes p50/p95/p99 latency from the latency sorted set.
    */
   async getMetrics(): Promise<QueueMetrics> {
-    const now = Date.now();
-    const wk = waitingKey(this.queueName);
-    const dk = delayedKey(this.queueName);
-    const ak = activeKey(this.queueName);
-    const ck = completedKey(this.queueName);
-    const fk = failedKey(this.queueName);
+    const wk  = waitingKey(this.queueName);
+    const dk  = delayedKey(this.queueName);
+    const ak  = activeKey(this.queueName);
+    const ck  = completedKey(this.queueName);
+    const fk  = failedKey(this.queueName);
     const cnk = cancelledKey(this.queueName);
+    const lk  = latencyKey(this.queueName);
 
     const pipeline = this.redis.pipeline();
-    pipeline.zcard(wk);                   // Waiting (Ready)
-    pipeline.zcard(dk);                   // Delayed
-    pipeline.hlen(ak);                    // Active
-    pipeline.zcard(ck);                   // Completed
-    pipeline.zcard(fk);                   // Failed
-    pipeline.zcard(cnk);                  // Cancelled
-    
+    pipeline.zcard(wk);              // [0] Waiting
+    pipeline.zcard(dk);              // [1] Delayed
+    pipeline.hlen(ak);               // [2] Active
+    pipeline.zcard(ck);              // [3] Completed
+    pipeline.zcard(fk);              // [4] Failed
+    pipeline.zcard(cnk);             // [5] Cancelled
+    // Fetch all scores (durations) from latency sorted set — already ordered ASC
+    pipeline.zrange(lk, 0, -1, 'WITHSCORES'); // [6] latency scores
+
     const results = await pipeline.exec();
-    
+
+    // ── Percentile calculation ────────────────────────────────────────────
+    const rawLatency = (results?.[6]?.[1] as string[]) || [];
+    // WITHSCORES returns [member, score, member, score ...] — extract scores only
+    const durations: number[] = [];
+    for (let i = 1; i < rawLatency.length; i += 2) {
+      durations.push(parseFloat(rawLatency[i]));
+    }
+    // durations are already sorted ASC (Redis ZRANGE returns lowest score first)
+    const pct = (arr: number[], p: number): number | null => {
+      if (arr.length === 0) return null;
+      const idx = Math.ceil((p / 100) * arr.length) - 1;
+      return arr[Math.max(0, Math.min(idx, arr.length - 1))];
+    };
+
     return {
-       waiting: results?.[0]?.[1] as number || 0,
-       delayed: results?.[1]?.[1] as number || 0,
-       active: results?.[2]?.[1] as number || 0,
-       completed: results?.[3]?.[1] as number || 0,
-       failed: results?.[4]?.[1] as number || 0,
-       cancelled: results?.[5]?.[1] as number || 0
+      waiting:   (results?.[0]?.[1] as number) || 0,
+      delayed:   (results?.[1]?.[1] as number) || 0,
+      active:    (results?.[2]?.[1] as number) || 0,
+      completed: (results?.[3]?.[1] as number) || 0,
+      failed:    (results?.[4]?.[1] as number) || 0,
+      cancelled: (results?.[5]?.[1] as number) || 0,
+      p50: pct(durations, 50),
+      p95: pct(durations, 95),
+      p99: pct(durations, 99),
     };
   }
 
@@ -300,6 +321,56 @@ export class Queue<T = any> extends EventEmitter {
       default:
         return [];
     }
+  }
+
+  /**
+   * Registers a repeatable (cron) job definition.
+   * The Scheduler will pick this up and enqueue jobs on schedule.
+   * 
+   * @param name   - Unique name for this repeatable job (also used for deduplication)
+   * @param data   - Data to pass to the processor each time it runs
+   * @param cron   - Cron expression, e.g. "* /10 * * * *" (every 10s — remove space)
+   * @param options - Standard job options (priority, attempts, etc.)
+   */
+  async addRepeatable(name: string, data: any, cron: string, options: JobOptions = {}): Promise<RepeatableJobDef> {
+    const ck = cronKey(this.queueName);
+    
+    // Parse the cron expression to get the first nextRunAt
+    const interval = CronExpressionParser.parse(cron);
+    const nextRunAt = interval.next().toDate().getTime();
+
+    const def: RepeatableJobDef = {
+      name,
+      cron,
+      data,
+      options,
+      nextRunAt,
+      createdAt: Date.now(),
+    };
+
+    // Store in Redis Hash: field = name, value = serialized def
+    await this.redis.hset(ck, name, JSON.stringify(def));
+    console.log(`[Cron:${this.queueName}] Registered repeatable job "${name}" (${cron}) — next run at ${new Date(nextRunAt).toISOString()}`);
+    return def;
+  }
+
+  /**
+   * Returns all registered repeatable (cron) job definitions for this queue.
+   */
+  async getRepeatableJobs(): Promise<RepeatableJobDef[]> {
+    const ck = cronKey(this.queueName);
+    const raw = await this.redis.hgetall(ck);
+    if (!raw) return [];
+    return Object.values(raw).map(v => JSON.parse(v));
+  }
+
+  /**
+   * Removes a repeatable job definition by name.
+   */
+  async removeRepeatable(name: string): Promise<boolean> {
+    const ck = cronKey(this.queueName);
+    const result = await this.redis.hdel(ck, name);
+    return result === 1;
   }
 
   /** Expose the queue name for API use */

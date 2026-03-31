@@ -49,3 +49,15 @@ export function channelKey(queueName: string): string {
 export function throughputKey(queueName: string, type: 'completed' | 'failed', minuteTimestamp: number): string {
   return `${PREFIX}:${queueName}:throughput:${type}:${minuteTimestamp}`;
 }
+
+// Stores all cron definitions for a queue (a Redis Hash)
+// field = jobName, value = JSON of RepeatableJobDef
+export function cronKey(queueName: string): string {
+  return `${PREFIX}:${queueName}:cron`;
+}
+
+// Sorted set of job durations (ms). Score = duration, member = jobId.
+// Capped at 1000 entries. Used for p50/p95/p99 latency calculations.
+export function latencyKey(queueName: string): string {
+  return `${PREFIX}:${queueName}:latency`;
+}

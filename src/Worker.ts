@@ -1,7 +1,7 @@
 import { Redis } from 'ioredis';
 import { EventEmitter } from 'events';
 import { Job, JobOptions, hydrateJob, JobStatus, WorkerOptions } from './types';
-import { jobKey, waitingKey, delayedKey, activeKey, failedKey, completedKey, channelKey, limiterKey } from './keys';
+import { jobKey, waitingKey, delayedKey, activeKey, failedKey, completedKey, channelKey, limiterKey, latencyKey } from './keys';
 
 /**
  * Worker class to process jobs from one or more queues.
@@ -213,9 +213,20 @@ export class Worker<T = any> extends EventEmitter {
 
       // Resolve states
       const completedKeyVal = completedKey(qName);
-      await (this.redis as any).complete(3, jk, ak, completedKeyVal, job.id, Date.now());
+      const finishedAt = Date.now();
+      await (this.redis as any).complete(3, jk, ak, completedKeyVal, job.id, finishedAt);
 
-      this.log(`✅ Job completed: ${job.id}`, qName);
+      // ── Phase 36: Record processing duration in latency sorted set ────────
+      // Score = duration ms, member = jobId. Cap at 1000 entries.
+      const startedAt = job.startedAt ?? finishedAt;
+      const duration  = finishedAt - startedAt;
+      const lk = latencyKey(qName);
+      const latencyPipeline = this.redis.pipeline();
+      latencyPipeline.zadd(lk, duration, job.id);    // store duration
+      latencyPipeline.zremrangebyrank(lk, 0, -1001); // keep newest 1000
+      await latencyPipeline.exec();
+
+      this.log(`✅ Job completed: ${job.id} (${duration}ms)`, qName);
       this.emit('completed', job, result);
     } catch (err: any) {
       this.log(`❌ Job failed: ${job.id} - ${err.message}`, qName);

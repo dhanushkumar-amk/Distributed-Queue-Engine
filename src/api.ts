@@ -153,6 +153,51 @@ export function createQueueRouter(registry: Record<string, Queue>): Router {
     }
   });
 
+  // ─── GET /queues/:name/throughput ────────────────────────
+  // Returns completed and failed job counts per minute for the last 10 minutes.
+  // Uses Redis ZCOUNT on the completed/failed sorted sets, slicing by time buckets.
+  router.get('/queues/:name/throughput', async (req: Request, res: Response) => {
+    const name = p(req, 'name');
+    const queue = resolveQueue(res, name);
+    if (!queue) return;
+
+    try {
+      const redis = (queue as any).redis as any; // access redis client
+      const completedKey = `queue:${name}:completed`;
+      const failedKey    = `queue:${name}:failed`;
+
+      const now = Date.now();
+      const MINUTE = 60 * 1000;
+      const buckets: Array<{ time: string; completed: number; failed: number }> = [];
+
+      // Build 10 one-minute buckets going back from now
+      const pipeline = redis.pipeline();
+      for (let i = 9; i >= 0; i--) {
+        const bucketStart = now - (i + 1) * MINUTE;
+        const bucketEnd   = now - i * MINUTE;
+        pipeline.zcount(completedKey, bucketStart, bucketEnd);
+        pipeline.zcount(failedKey,    bucketStart, bucketEnd);
+      }
+
+      const results = await pipeline.exec();
+
+      for (let i = 9; i >= 0; i--) {
+        const idx = (9 - i) * 2;
+        const bucketEnd = now - i * MINUTE;
+        const label = new Date(bucketEnd).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        buckets.push({
+          time: label,
+          completed: Number(results?.[idx]?.[1] ?? 0),
+          failed:    Number(results?.[idx + 1]?.[1] ?? 0),
+        });
+      }
+
+      res.json({ queue: name, buckets });
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
   // ─── GET /health ──────────────────────────────────────────
   router.get('/health', (_req: Request, res: Response) => {
     res.json({ status: 'ok', timestamp: new Date().toISOString(), queues: Object.keys(registry).length });
