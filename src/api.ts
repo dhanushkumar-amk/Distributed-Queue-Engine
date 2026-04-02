@@ -301,8 +301,39 @@ export function createQueueRouter(registry: Record<string, Queue>, redis: Redis)
   });
 
   // ─── GET /health ──────────────────────────────────────────
-  router.get('/health', (_req: Request, res: Response) => {
-    res.json({ status: 'ok', timestamp: new Date().toISOString(), queues: Object.keys(registry).length });
+  router.get('/health', async (_req: Request, res: Response) => {
+    try {
+      // Check Redis connection
+      const isRedisConnected = redis.status === 'ready' || redis.status === 'connect';
+      if (!isRedisConnected) {
+        return res.status(503).json({ status: 'unhealthy', redisConnected: false });
+      }
+
+      // Count active workers via existing cursor loop
+      let activeWorkers = 0;
+      let cursor = '0';
+      do {
+        const [nextCursor, keys] = await redis.scan(cursor, 'MATCH', WORKER_KEY_PATTERN, 'COUNT', 100);
+        cursor = nextCursor;
+        activeWorkers += keys.length;
+      } while (cursor !== '0');
+
+      // Calculate total queue depth
+      let queueDepth = 0;
+      for (const queueName of Object.keys(registry)) {
+        queueDepth += await redis.zcard(`queue:${queueName}:waiting`);
+      }
+
+      res.json({
+        status: 'ok',
+        redisConnected: true,
+        activeWorkers,
+        queueDepth
+      });
+    } catch (err) {
+      console.error('Healthcheck failed:', err);
+      res.status(503).json({ status: 'unhealthy', redisConnected: false });
+    }
   });
 
   return router;

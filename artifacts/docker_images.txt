@@ -1,0 +1,16 @@
+REPOSITORY                                                          TAG        IMAGE ID       CREATED          SIZE
+distributed-queue-engine                                            latest     bd5b50caf156   16 minutes ago   223MB
+distributed-queue-engine                                            test       d43aec3f82ef   29 minutes ago   223MB
+postgres                                                            15         c635fa3e3b74   2 weeks ago      627MB
+gcr.io/cadvisor/cadvisor                                            latest     3de2bd520312   3 months ago     107MB
+ghcr.io/github/github-mcp-server                                    latest     26c7b1b8ac6e   3 months ago     56.5MB
+prom/prometheus                                                     latest     d936808bdea5   4 months ago     518MB
+828411126033.dkr.ecr.ap-south-1.amazonaws.com/deployx-build-image   latest     27418fae5126   4 months ago     671MB
+deployx-build-image                                                 latest     80fdbc561922   4 months ago     671MB
+oliver006/redis_exporter                                            latest     bac9872da2b4   4 months ago     14.5MB
+grafana/grafana                                                     latest     70d9599b186c   4 months ago     993MB
+redis                                                               7-alpine   ee64a64eaab6   4 months ago     60.7MB
+prom/node-exporter                                                  latest     3ac34ce007ac   5 months ago     41.6MB
+testcontainers/ryuk                                                 0.14.0     7c1a8a9a47c7   6 months ago     4.83MB
+grafana/loki                                                        2.9.1      ac8275500db2   2 years ago      101MB
+grafana/promtail                                                    2.9.1      76143be4eab2   2 years ago      286MB

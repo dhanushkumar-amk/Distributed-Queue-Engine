@@ -38,5 +38,9 @@ ENV NODE_ENV=production
 # Expose the API port
 EXPOSE 3000
 
+# Healthcheck for Observability
+HEALTHCHECK --interval=10s --timeout=5s --start-period=5s --retries=3 \
+  CMD wget --no-verbose --tries=1 --spider http://localhost:$([ -f /tmp/health_port ] && cat /tmp/health_port || echo ${PORT:-3000})/health || exit 1
+
 # Entrypoint
 CMD ["node", "dist/server.js"]

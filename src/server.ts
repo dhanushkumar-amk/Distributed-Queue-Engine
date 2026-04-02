@@ -1,3 +1,4 @@
+import './logger';
 import express from 'express';
 import { createServer } from 'http';
 import { Server as SocketIOServer } from 'socket.io';
@@ -116,8 +117,40 @@ async function main() {
       res.json({
         name: 'Distributed Queue Engine',
         version: '1.0.0',
-        docs: 'GET /api/health | GET /api/queues | GET /api/queues/:name/metrics',
+        docs: 'GET /health | GET /api/queues | GET /api/queues/:name/metrics',
       });
+    });
+
+    app.get('/health', async (_req, res) => {
+      try {
+        const isRedisConnected = redis.status === 'ready' || redis.status === 'connect';
+        if (!isRedisConnected) {
+          return res.status(503).json({ status: 'unhealthy', redisConnected: false });
+        }
+  
+        let activeWorkers = 0;
+        let cursor = '0';
+        do {
+          const [nextCursor, keys] = await redis.scan(cursor, 'MATCH', 'queue:*:worker:*', 'COUNT', 100);
+          cursor = nextCursor;
+          activeWorkers += keys.length;
+        } while (cursor !== '0');
+  
+        let queueDepth = 0;
+        for (const queueName of Object.keys(queues)) {
+          queueDepth += await redis.zcard(`queue:${queueName}:waiting`);
+        }
+  
+        res.json({
+          status: 'ok',
+          redisConnected: true,
+          activeWorkers,
+          queueDepth
+        });
+      } catch (err) {
+        console.error('Healthcheck failed:', err);
+        res.status(503).json({ status: 'unhealthy', redisConnected: false });
+      }
     });
 
     // Socket.IO Connection Logic
@@ -164,6 +197,37 @@ async function main() {
     });
   } else {
     console.log('ℹ️ API disabled via env.');
+    
+    // Add HTTP health endpoint on a random port for worker
+    const workerServer = require('http').createServer((req: any, res: any) => {
+      if (req.url === '/health') {
+        const isRedisConnected = redis.status === 'ready' || redis.status === 'connect';
+        if (!isRedisConnected) {
+          res.writeHead(503, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ status: 'unhealthy', redisConnected: false }));
+          return;
+        }
+
+        const activeJobs = workers.reduce((acc, w) => acc + w.getActiveCount(), 0);
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ pid: process.pid, activeJobs, uptime: process.uptime() }));
+      } else {
+        res.writeHead(404);
+        res.end();
+      }
+    });
+
+    workerServer.listen(0, () => {
+      const addr = workerServer.address();
+      const port = addr && typeof addr === 'object' ? addr.port : 0;
+      console.log(`⚕️  Worker health endpoint listening on random port ${port}`);
+      try {
+        fs.writeFileSync('/tmp/health_port', String(port));
+      } catch (e) {
+        console.error('Failed to write random port to /tmp/health_port');
+      }
+    });
+
     // If no API, we still need shutdown handlers for workers/scheduler
     registerShutdownHandlers({
       workers,
