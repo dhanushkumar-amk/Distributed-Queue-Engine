@@ -2,26 +2,33 @@
 FROM node:20-alpine AS dashboard-builder
 WORKDIR /app/dashboard
 COPY dashboard/package*.json ./
-RUN npm install --legacy-peer-deps
+RUN npm ci --legacy-peer-deps
 COPY dashboard/ ./
 RUN npm run build
 
-# Stage 2: Build Backend & Final Image
+# Stage 2: Build Backend
+FROM node:20-alpine AS backend-builder
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci --legacy-peer-deps
+COPY . .
+# Build the TypeScript code
+RUN npm run build
+RUN cp -r src/lua dist/lua || true
+
+# Stage 3: Runner (Final Image)
 FROM node:20-alpine
 WORKDIR /app
 
-# Copy package files and install dependencies
+# Only install production dependencies
 COPY package*.json ./
-RUN npm install --legacy-peer-deps
+RUN npm ci --omit=dev --legacy-peer-deps
 
-# Copy source and other files
-COPY . .
+# Copy compiled backend from builder
+COPY --from=backend-builder /app/dist ./dist
 
 # Copy built dashboard from stage 1
 COPY --from=dashboard-builder /app/dashboard/dist ./dashboard/dist
-
-# Build the TypeScript code
-RUN npm run build
 
 # Default environment variables
 ENV PORT=3000
@@ -31,5 +38,5 @@ ENV NODE_ENV=production
 # Expose the API port
 EXPOSE 3000
 
-# Entrypoint will be decided by docker-compose commands
+# Entrypoint
 CMD ["node", "dist/server.js"]

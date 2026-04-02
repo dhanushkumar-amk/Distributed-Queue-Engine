@@ -5,3 +5,7 @@ dashboard/dist
 .git
 .env
 *.log
+tests/
+scripts/
+jest.config.js
+tsconfig.test.json
