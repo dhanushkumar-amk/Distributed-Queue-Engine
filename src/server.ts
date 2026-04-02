@@ -104,8 +104,8 @@ async function main() {
     const dashboardPath = path.join(__dirname, '../dashboard/dist');
     if (fs.existsSync(dashboardPath)) {
       app.use(express.static(dashboardPath));
-      app.get('*', (req, res, next) => {
-        if (req.path.startsWith('/api')) return next();
+      app.use((req, res, next) => {
+        if (req.path.startsWith('/api') || req.method !== 'GET') return next();
         res.sendFile(path.join(dashboardPath, 'index.html'));
       });
       console.log(`✅ Serving dashboard from ${dashboardPath}`);

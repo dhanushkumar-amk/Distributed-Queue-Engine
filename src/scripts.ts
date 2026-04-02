@@ -26,11 +26,14 @@ declare module 'ioredis' {
  * Using defineCommand allows us to call these scripts as methods on the redis object.
  */
 export async function loadScripts(redis: Redis): Promise<void> {
-  const luaDir = path.join(__dirname, 'lua');
+  let luaDir = path.join(__dirname, 'lua');
   
   if (!fs.existsSync(luaDir)) {
-    console.warn("⚠️ No Lua directory found at:", luaDir);
-    return;
+    luaDir = path.join(__dirname, '../src/lua');
+    if (!fs.existsSync(luaDir)) {
+      console.warn("⚠️ No Lua directory found at either:", path.join(__dirname, 'lua'), "or", luaDir);
+      return;
+    }
   }
 
   const files = fs.readdirSync(luaDir).filter(file => file.endsWith('.lua'));
